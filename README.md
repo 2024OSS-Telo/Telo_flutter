@@ -2,15 +2,14 @@
 
 A new Flutter project.
 
-## Getting Started
+# 👾 Commit 규칙
+|제목|설명|
+|---|---|
+|Feat:|새로운 기능 추가|
+|Fix:|버그 수정|
+|Style:|코드 형식 변경 및 세미콜론 추가|
+|Comment:|주석 생성, 수정 및 삭제|
+|Docs:|문서 수정|
+|Rename:|파일 및 폴더명 변경|
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<br/><br/>
