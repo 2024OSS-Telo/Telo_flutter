@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:telo/test.dart';
+import 'package:telo/screens/notification_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,7 +33,7 @@ class HeaderHome extends StatelessWidget implements PreferredSizeWidget {
             onTap: (){
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => test()),
+                MaterialPageRoute(builder: (context) => NotificationPage()),
               );
             },
             child: Icon(
