@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:telo/test.dart';
 
 void main() {
   runApp(const MyApp());
@@ -28,9 +29,17 @@ class HeaderHome extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 15.0),
-          child: Icon(
-            Icons.notifications,
-            color: Colors.white,
+          child: GestureDetector(
+            onTap: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => test()),
+              );
+            },
+            child: Icon(
+              Icons.notifications,
+              color: Colors.white,
+            ),
           ),
         )
       ],
@@ -40,6 +49,8 @@ class HeaderHome extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
+
+
 
 class BodyHome extends StatelessWidget {
   const BodyHome({super.key});
