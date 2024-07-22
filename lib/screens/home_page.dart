@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:telo/screens/notification_page.dart';
+import 'package:telo/screens/repair/repair_list_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -9,9 +10,9 @@ class HomePage extends StatelessWidget {
     return MaterialApp(
         home: Scaffold(
           appBar: HeaderHome(),
-          body: BodyHome(),
-          bottomNavigationBar: BottomHome(),
-        ));
+          body: BodyHome()
+        )
+    );
   }
 }
 
@@ -26,7 +27,7 @@ class HeaderHome extends StatelessWidget implements PreferredSizeWidget {
         Padding(
           padding: const EdgeInsets.only(right: 15.0),
           child: GestureDetector(
-            onTap: (){
+            onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => NotificationPage()),
@@ -45,8 +46,6 @@ class HeaderHome extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
-
-
 
 class BodyHome extends StatelessWidget {
   const BodyHome({super.key});
@@ -70,12 +69,12 @@ class BodyHome extends StatelessWidget {
                 ),
                 Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(10.0),
-                        topRight: Radius.circular(10.0),
-                      ),
-                    )),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10.0),
+                    topRight: Radius.circular(10.0),
+                  ),
+                )),
               ],
             )),
       ],
@@ -132,16 +131,23 @@ class BottomHome extends StatelessWidget {
               ),
             ),
             SizedBox(
-              width: 60,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.build, color: Color(0xff757575)),
-                  Text('수리요청')
-                ],
-              ),
-            ),
+                width: 60,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RepairListPage()),
+                    );
+                  },
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.build, color: Color(0xff757575)),
+                      Text('수리요청')
+                    ],
+                  ),
+                )),
             SizedBox(
               width: 60,
               child: Column(
