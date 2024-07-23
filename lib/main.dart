@@ -6,8 +6,8 @@ import 'package:telo/screens/repair/repair_list_page.dart';
 
 void main() {
   runApp(const MaterialApp(
-    // home: MyApp(),
-    home: MainPage()
+    home: MyApp(),
+    //home: MainPage()
   ));
 }
 
@@ -75,25 +75,52 @@ class _PageSlideState extends State<MyApp> {
                 count: 2,
                 effect: SwapEffect(
                   activeDotColor: Colors.black,
-                  dotColor: Colors.black38
+                  dotColor: Colors.black38,
+                  spacing:  8.0,
+                  dotWidth:  13.0,
+                  dotHeight:  13.0,
                 ),
               ),
             ),
           ),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(onPressed: (){}, child: Text('구글 로그인', textAlign: TextAlign.center,)),
-              TextButton(onPressed: (){}, child: Text('카카오톡 로그인'))
-            ],
+          Container(
+            padding: EdgeInsetsDirectional.only(bottom: 50),
+            alignment: Alignment.bottomCenter,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: EdgeInsets.all(7),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Image.asset(
+                      'assets/image/android_neutral_sq_SI@1x.png',
+                      width: 200,
+                      fit: BoxFit.contain,
+                    ),
+                    onPressed: () {},
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.all(7),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Image.asset(
+                      'assets/image/kakao_login_medium_narrow.png',
+                      width: 200,
+                      fit: BoxFit.contain,
+                    ),
+                    onPressed: () {},
+                  ),
+                ),
+              ],
+            ),
           )
         ],
-
       ),
     );
   }
 }
-
 
 // 로그인 후
 class MainPage extends StatefulWidget {
