@@ -6,8 +6,9 @@ import 'package:telo/screens/repair/repair_list_page.dart';
 
 void main() {
   runApp(const MaterialApp(
-    home: MyApp(),
+    //home: MyApp(),
     //home: MainPage()
+    home: AfterLogin(),
   ));
 }
 
@@ -76,9 +77,9 @@ class _PageSlideState extends State<MyApp> {
                 effect: SwapEffect(
                   activeDotColor: Colors.black,
                   dotColor: Colors.black38,
-                  spacing:  8.0,
-                  dotWidth:  13.0,
-                  dotHeight:  13.0,
+                  spacing: 8.0,
+                  dotWidth: 13.0,
+                  dotHeight: 13.0,
                 ),
               ),
             ),
@@ -117,6 +118,68 @@ class _PageSlideState extends State<MyApp> {
             ),
           )
         ],
+      ),
+    );
+  }
+}
+
+class AfterLogin extends StatelessWidget {
+  const AfterLogin({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xff93A98D),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '반가워요!\n누구신가요?\n',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 35,
+                letterSpacing: 5,
+                height: 1.8,
+              ),
+            ),
+            SizedBox(height: 30),
+            SizedBox(
+              width: 350,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xff2C2C2C),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                ),
+                onPressed: () {},
+                child: Text(
+                  '집주인입니다',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            SizedBox(
+              width: 350,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                ),
+                onPressed: () {},
+                child: Text(
+                  '세입자입니다',
+                  style: TextStyle(color: Color(0xff2C2C2C)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
