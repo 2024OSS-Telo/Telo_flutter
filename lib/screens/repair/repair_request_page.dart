@@ -88,14 +88,21 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                             decoration: const InputDecoration(
                                 hintText: "제목",
                                 hintStyle: TextStyle(color: Color(0xffD9D9D9)),
-                                border: OutlineInputBorder(
+                                enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0xffD9D9D9),
-                                    width: 30
                                   ),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10)),
-                                )),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xffD9D9D9),
+                                  ),
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                                )
+                            ),
                           ),
                           Text("설명", style: TextStyle(fontSize: 15)),
                           SizedBox(height: 10),
@@ -114,12 +121,20 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                             maxLines: 6,
                             decoration: const InputDecoration(
                                 hintText: "어떤 문제가 있는지 자세히 설명해 주세요.",
-                                border: OutlineInputBorder(
+                                hintStyle: TextStyle(color: Color(0xffD9D9D9)),
+                                enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0xffD9D9D9),
                                   ),
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
+                                  BorderRadius.all(Radius.circular(10)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xffD9D9D9),
+                                  ),
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
                                 )),
                           ),
                           Text("예상 청구 금액 (선택 사항)",
@@ -139,14 +154,40 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                             keyboardType: TextInputType.number,
                             decoration: const InputDecoration(
                                 hintText: "₩",
-                                border: OutlineInputBorder(
+                                hintStyle: TextStyle(color: Color(0xffD9D9D9)),
+                                enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0xffD9D9D9),
                                   ),
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
+                                  BorderRadius.all(Radius.circular(10)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Color(0xffD9D9D9),
+                                  ),
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
                                 )),
-                          )
+                          ),
+                          SizedBox(height: 20),
+                          Align(
+                            alignment: Alignment.center,
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                fixedSize: Size(350, 20),
+                                backgroundColor: Color(0xff93A98D),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(7),
+                                ),
+                              ),
+                              onPressed: () {},
+                              child: Text(
+                                '등록하기',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
                         ])),
               ),
             )));

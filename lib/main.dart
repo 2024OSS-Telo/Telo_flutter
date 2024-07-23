@@ -7,8 +7,8 @@ import 'package:telo/screens/repair/repair_list_page.dart';
 void main() {
   runApp(const MaterialApp(
     //home: MyApp(),
-    //home: MainPage()
-    home: AfterLogin(),
+    home: MainPage()
+    //home: AfterLogin(),
   ));
 }
 
