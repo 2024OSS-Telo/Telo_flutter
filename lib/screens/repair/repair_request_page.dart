@@ -1,7 +1,11 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 
 class RepairRequestPage extends StatefulWidget {
   const RepairRequestPage({super.key});
@@ -11,13 +15,72 @@ class RepairRequestPage extends StatefulWidget {
 }
 
 class _RepairRequestPageState extends State<RepairRequestPage> {
+  String backendURL = "http://localhost:80";
+
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
+  final Dio _dio = Dio();
 
   String _titleValue = "";
   String _descriptionValue = "";
   int _estimateValue = 0;
   List<XFile> _pickedImages = [];
+
+  Future<void> _submitRequest() async {
+    if (_pickedImages.isEmpty) {
+      Fluttertoast.showToast(msg: "사진을 한 장 이상 등록해야 합니다.");
+      return;
+    }
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    _formKey.currentState!.save();
+    List<String> imageURLs = [];
+    for (XFile image in _pickedImages) {
+      final imageURL = await uploadImage(image);
+      imageURLs.add(imageURL);
+    }
+
+    final requestPayload = {
+      'landlordID': 1,
+      'tenantID': 2,
+      'requestTitle': _titleValue,
+      'requestContent': _descriptionValue,
+      'imageURL': imageURLs,
+      'estimateValue': _estimateValue
+    };
+
+    final response = await _dio.post(
+      backendURL + "/repair-request",
+      options: Options(
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ),
+      data: jsonEncode(requestPayload),
+    );
+    if (response.statusCode != 200) {
+      print('요청 전송에 실패했습니다.: ${response.statusMessage}');
+    }
+  }
+
+  Future<String> uploadImage(XFile image) async {
+    String fileName = image.path.split('/').last;
+    FormData formData = FormData.fromMap({
+      "file": await MultipartFile.fromFile(image.path, filename: fileName),
+    });
+
+    var response = await _dio.post(
+      backendURL + "/upload-image",
+      data: formData,
+    );
+
+    if (response.statusCode == 200) {
+      return response.data['imageURL'];
+    } else {
+      throw Exception('이미지 업로드에 실패했습니다.');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,25 +110,73 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                             style: TextStyle(fontSize: 15),
                           ),
                           SizedBox(height: 10),
-                          // 사진 가져오기
-                          ElevatedButton(
-                            onPressed: () async {
-                              final List<XFile>? images =
-                                  await _picker.pickMultiImage();
-                              if (images != null) {
-                                setState(() {
-                                  _pickedImages.addAll(images);
-                                });
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xffD9D9D9),
-                              fixedSize: Size(70, 70),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                ..._pickedImages.map((image) => Padding(
+                                      padding: EdgeInsets.only(right: 5.0),
+                                      child: Stack(children: [
+                                        ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          child: Image.file(File(image.path),
+                                              width: 80,
+                                              height: 80,
+                                              fit: BoxFit.cover),
+                                        ),
+                                        Positioned(
+                                          top: -10,
+                                          right: -10,
+                                          child: IconButton(
+                                            icon: Icon(Icons.cancel),
+                                            padding: EdgeInsets.zero,
+                                            constraints: BoxConstraints(),
+                                            onPressed: () {
+                                              setState(() {
+                                                _pickedImages.removeWhere((img) => img.path == image.path);
+                                              });
+                                            },
+                                          ),
+                                        )
+                                      ]),
+                                    )),
+                                if (_pickedImages.length < 5)
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      final List<XFile>? images =
+                                          await _picker.pickMultiImage(
+                                              limit: 5,
+                                              maxHeight: 500,
+                                              maxWidth: 500);
+                                      if (images != null) {
+                                        setState(() {
+                                          List<XFile> newImages = images.where((image) => !_pickedImages.any((pickedImage) => pickedImage.path == image.path)).toList();
+                                          if (_pickedImages.length +
+                                              newImages.length <=
+                                              5) {
+                                            _pickedImages.addAll(newImages);
+                                          } else {
+                                            Fluttertoast.showToast(
+                                                msg: "사진은 최대 5장까지 등록 가능합니다.");
+                                          }
+                                        });
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xffD9D9D9),
+                                      fixedSize: Size(80, 80),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.image,
+                                      color: Color(0xff757575),
+                                    ),
+                                  )
+                              ],
                             ),
-                            child: Icon(Icons.image, color: Color(0xff757575),),
                           ),
                           SizedBox(height: 20),
                           Text(
@@ -100,9 +211,8 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                     color: Color(0xffD9D9D9),
                                   ),
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
-                                )
-                            ),
+                                      BorderRadius.all(Radius.circular(10)),
+                                )),
                           ),
                           Text("설명", style: TextStyle(fontSize: 15)),
                           SizedBox(height: 10),
@@ -127,14 +237,14 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                     color: Color(0xffD9D9D9),
                                   ),
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
+                                      BorderRadius.all(Radius.circular(10)),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0xffD9D9D9),
                                   ),
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
+                                      BorderRadius.all(Radius.circular(10)),
                                 )),
                           ),
                           Text("예상 청구 금액 (선택 사항)",
@@ -160,14 +270,14 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                     color: Color(0xffD9D9D9),
                                   ),
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
+                                      BorderRadius.all(Radius.circular(10)),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: Color(0xffD9D9D9),
                                   ),
                                   borderRadius:
-                                  BorderRadius.all(Radius.circular(10)),
+                                      BorderRadius.all(Radius.circular(10)),
                                 )),
                           ),
                           SizedBox(height: 20),
@@ -181,7 +291,11 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                   borderRadius: BorderRadius.circular(7),
                                 ),
                               ),
-                              onPressed: () {},
+                              onPressed: (){
+                                _submitRequest();
+                                Fluttertoast.showToast(msg: "등록되었습니다.");
+                                Navigator.pop(context);
+                              },
                               child: Text(
                                 '등록하기',
                                 style: TextStyle(color: Colors.white),
