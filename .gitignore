@@ -42,4 +42,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-#keyaa
+#key
+/android/app/google-services.json
+/ios/Runner/GoogleService-info.plist
