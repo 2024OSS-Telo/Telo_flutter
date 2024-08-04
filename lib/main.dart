@@ -11,7 +11,7 @@ import 'login_platform.dart';
 
 void main() {
   KakaoSdk.init(
-      nativeAppKey: 'aa'
+      nativeAppKey: '7175c6f048b50e0a135ab044f8f3155e'
   );
 
   runApp(const MaterialApp(
@@ -61,7 +61,7 @@ class GoogleLoginApi {
       print('name = ${googleUser.displayName}');
       print('email = ${googleUser.email}');
       print('id = ${googleUser.id}');
-
+      //
       // setState(() {
       //   _loginPlatform = LoginPlatform.google;
       // });
