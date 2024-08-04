@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:telo/main.dart';
 import 'package:telo/screens/notification_page.dart';
 import 'package:telo/screens/repair/repair_list_page.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final VoidCallback onSignOut;
+
+  const HomePage({super.key, required this.onSignOut});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
           appBar: HeaderHome(),
-          body: BodyHome()
+          body: BodyHome(onSignOut: onSignOut)
         )
     );
   }
@@ -48,7 +51,9 @@ class HeaderHome extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class BodyHome extends StatelessWidget {
-  const BodyHome({super.key});
+  final VoidCallback onSignOut;
+
+  const BodyHome({super.key, required this.onSignOut});
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +63,17 @@ class BodyHome extends StatelessWidget {
           flex: 2,
           child: Container(
             color: Color(0xff93A98D),
+
+
+            child: Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: Icon(Icons.logout),
+                color: Colors.white,
+                onPressed: onSignOut,
+              ),
+            ),
+
           ),
         ),
         Flexible(

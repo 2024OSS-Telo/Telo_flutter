@@ -7,12 +7,10 @@ import 'package:telo/screens/home_page.dart';
 import 'package:telo/screens/notification_page.dart';
 import 'package:telo/screens/repair/repair_list_page.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'login_platform.dart';
+import 'const/login_platform.dart';
 
 void main() {
-  KakaoSdk.init(
-      nativeAppKey: '7175c6f048b50e0a135ab044f8f3155e'
-  );
+  KakaoSdk.init(nativeAppKey: '7175c6f048b50e0a135ab044f8f3155e');
 
   runApp(const MaterialApp(
     home: MyApp(),
@@ -21,11 +19,58 @@ void main() {
   ));
 }
 
-class KakaoLoginApi {
-  signWithKakao() async {
+class MyApp extends StatefulWidget {
+  const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  LoginPlatform _loginPlatform = LoginPlatform.none;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoginStatus();
+  }
+
+  void _checkLoginStatus() async {
+    bool isKakaoLoggedIn = await AuthApi.instance.hasToken();
+    bool isGoogleLoggedIn = await GoogleSignIn().isSignedIn();
+
+    if (isKakaoLoggedIn) {
+      setState(() {
+        _loginPlatform = LoginPlatform.kakao;
+      });
+    } else if (isGoogleLoggedIn) {
+      setState(() {
+        _loginPlatform = LoginPlatform.google;
+      });
+    }
+  }
+
+  void signInWithGoogle() async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    if (googleUser != null) {
+      print('name = ${googleUser.displayName}');
+      print('email = ${googleUser.email}');
+      print('id = ${googleUser.id}');
+
+      setState(() {
+        _loginPlatform = LoginPlatform.google;
+      });
+    }
+  }
+
+  void signInWithKakao() async {
     if (await isKakaoTalkInstalled()) {
       try {
         await UserApi.instance.loginWithKakaoTalk();
+        setState(() {
+          _loginPlatform = LoginPlatform.kakao;
+        });
         print('카카오톡으로 로그인 성공');
       } catch (error) {
         print('카카오톡으로 로그인 실패 $error');
@@ -35,6 +80,9 @@ class KakaoLoginApi {
         }
         try {
           await UserApi.instance.loginWithKakaoAccount();
+          setState(() {
+            _loginPlatform = LoginPlatform.kakao;
+          });
           print('카카오계정으로 로그인 성공');
         } catch (error) {
           print('카카오계정으로 로그인 실패 $error');
@@ -43,99 +91,63 @@ class KakaoLoginApi {
     } else {
       try {
         await UserApi.instance.loginWithKakaoAccount();
+        setState(() {
+          _loginPlatform = LoginPlatform.kakao;
+        });
         print('카카오계정으로 로그인 성공');
       } catch (error) {
         print('카카오계정으로 로그인 실패 $error');
       }
     }
   }
-}
 
-class GoogleLoginApi {
-  LoginPlatform _loginPlatform = LoginPlatform.none;
-
-  void signInWithGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-
-    if (googleUser != null) {
-      print('name = ${googleUser.displayName}');
-      print('email = ${googleUser.email}');
-      print('id = ${googleUser.id}');
-      //
-      // setState(() {
-      //   _loginPlatform = LoginPlatform.google;
-      // });
+  void signOut() async {
+    switch (_loginPlatform) {
+      case LoginPlatform.google:
+        await GoogleSignIn().signOut();
+        break;
+      case LoginPlatform.kakao:
+        await UserApi.instance.logout();
+        break;
+      case LoginPlatform.none:
+        break;
     }
+
+    setState(() {
+      _loginPlatform = LoginPlatform.none;
+    });
   }
-}
 
-Future<bool> isLoggedIn() async {
-  try {
-    // 유저 정보를 가져오려 시도
-    final User user = await UserApi.instance.me();
-    return user != null;
-  } catch (e) {
-    return false;
-  }
-}
-
-// void signOut() async {
-//   switch (_loginPlatform) {
-//     case LoginPlatform.google:
-//       await GoogleSignIn().signOut();
-//       break;
-//     case LoginPlatform.kakao:
-//       break;
-//     case LoginPlatform.none:
-//       break;
-//   }
-//
-//   setState(() {
-//     _loginPlatform = LoginPlatform.none;
-//   });
-// }
-
-// 로그인 전
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: FutureBuilder<bool>(
-        future: isLoggedIn(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          } else if (snapshot.hasError) {
-            return Scaffold(
-              body: Center(child: Text('Error occurred')),
-            );
-          } else {
-            bool loggedIn = snapshot.data ?? false;
-            if (loggedIn) {
-              return AfterLogin();
-            } else {
-              return PageSlide();
-            }
-          }
-        },
-      ),
-    );
+    if (_loginPlatform == LoginPlatform.none) {
+      return PageSlide(
+        onGoogleSignIn: signInWithGoogle,
+        onKakaoSignIn: signInWithKakao,
+      );
+    } else {
+      bool userInfoExists = false;
+      // bool userInfoExists = await checkUserInfoExists();
+      if (!userInfoExists) {
+        return AfterLogin(onSignOut: signOut);
+      } else {
+        return MainPage(onSignOut: signOut);
+      }
+    }
+  }
+
+  Future<bool> checkUserInfoExists() async {
+    return true;
   }
 }
 
 class PageSlide extends StatelessWidget {
   final PageController _pageController = PageController(initialPage: 0);
+  final VoidCallback onGoogleSignIn;
+  final VoidCallback onKakaoSignIn;
 
-  PageSlide({super.key});
+  PageSlide(
+      {super.key, required this.onGoogleSignIn, required this.onKakaoSignIn});
 
   @override
   Widget build(BuildContext context) {
@@ -198,48 +210,37 @@ class PageSlide extends StatelessWidget {
               ),
             ),
           ),
-          LoginApiButton(),
-        ],
-      ),
-    );
-  }
-}
-
-class LoginApiButton extends StatelessWidget {
-  const LoginApiButton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsetsDirectional.only(bottom: 50),
-      alignment: Alignment.bottomCenter,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
           Container(
-            margin: EdgeInsets.all(7),
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: Image.asset(
-                'assets/image/android_neutral_sq_SI@1x.png',
-                width: 200,
-                fit: BoxFit.contain,
-              ),
-              onPressed: () {},
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.all(7),
-            child: IconButton(
-              padding: EdgeInsets.zero,
-              icon: Image.asset(
-                'assets/image/kakao_login_medium_narrow.png',
-                width: 200,
-                fit: BoxFit.contain,
-              ),
-              onPressed: () {
-                KakaoLoginApi().signWithKakao();
-              },
+            padding: EdgeInsetsDirectional.only(bottom: 50),
+            alignment: Alignment.bottomCenter,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: EdgeInsets.all(7),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Image.asset(
+                      'assets/image/android_neutral_sq_SI@1x.png',
+                      width: 200,
+                      fit: BoxFit.contain,
+                    ),
+                    onPressed: onGoogleSignIn,
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.all(7),
+                  child: IconButton(
+                    padding: EdgeInsets.zero,
+                    icon: Image.asset(
+                      'assets/image/kakao_login_medium_narrow.png',
+                      width: 200,
+                      fit: BoxFit.contain,
+                    ),
+                    onPressed: onKakaoSignIn,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -249,7 +250,9 @@ class LoginApiButton extends StatelessWidget {
 }
 
 class AfterLogin extends StatelessWidget {
-  const AfterLogin({super.key});
+  final VoidCallback onSignOut;
+
+  const AfterLogin({super.key, required this.onSignOut});
 
   @override
   Widget build(BuildContext context) {
@@ -283,7 +286,7 @@ class AfterLogin extends StatelessWidget {
                   //데베에 전송하고 처음 에 role > !=null 일때 다음페이지로? 아니면 isLogged에서 role 이 null 일때만 이페이지로
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MainPage()),
+                    MaterialPageRoute(builder: (context) => MainPage(onSignOut: onSignOut)),
                   );
                 },
                 child: Text(
@@ -305,7 +308,7 @@ class AfterLogin extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MainPage()),
+                    MaterialPageRoute(builder: (context) => MainPage(onSignOut: onSignOut)),
                   );
                 },
                 child: Text(
@@ -321,9 +324,10 @@ class AfterLogin extends StatelessWidget {
   }
 }
 
-// 로그인 후
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final VoidCallback onSignOut;
+
+  const MainPage({Key? key, required this.onSignOut}) : super(key: key);
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -331,16 +335,19 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
-  final List<Widget> _widgetOptions = <Widget>[
-    HomePage(),
-    RepairListPage(),
-    RepairListPage(),
-    RepairListPage(),
-    // ChatPage(),
-    // BuildingPage(),
-    RepairListPage(),
-    // MyPage()
-  ];
+  late final List<Widget> _widgetOptions;
+
+  @override
+  void initState() {
+    super.initState();
+    _widgetOptions = <Widget>[
+      HomePage(onSignOut: widget.onSignOut),
+      RepairListPage(),
+      RepairListPage(),
+      RepairListPage(),
+      RepairListPage(),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
