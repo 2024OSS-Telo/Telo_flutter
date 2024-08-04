@@ -30,10 +30,15 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  smooth_page_indicator: 1.2.0
+  smooth_page_indicator: ^1.2.0
   image_picker: ^1.1.2
 
-
+  kakao_flutter_sdk_common: ^1.9.5
+  kakao_flutter_sdk_auth: ^1.9.5
+  kakao_flutter_sdk_user: ^1.9.5
+  google_sign_in: ^6.2.0
+  provider: ^6.1.2
+  http: ^0.13.3
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
