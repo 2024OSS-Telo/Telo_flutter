@@ -69,7 +69,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> signUpUser(String memberID, String memberName, String profile, String provider) async {
     final response = await dio.post(
-      'http://218.147.229.120:80/api/members/signup',
+      'http://localhost:80/api/members/signup',
       data: {
         'memberID': memberID,
         'memberName': memberName,
@@ -96,7 +96,7 @@ class _MyAppState extends State<MyApp> {
     print('Member Type Type: ${memberType.runtimeType}');
 
     final response = await dio.post(
-      'http://218.147.229.120:80/api/members/updateMemberType/$memberID',
+      'http://localhost:80/api/members/updateMemberType/$memberID',
       data: {'memberType': memberType},
       options: Options(
         headers: {
@@ -135,7 +135,7 @@ class _MyAppState extends State<MyApp> {
     try {
       final String memberID = await findMemberID();
       print("Checking member type for memberID: $memberID");
-      final response = await dio.get('http://218.147.229.120:80/api/members/$memberID');
+      final response = await dio.get('http://localhost:80/api/members/$memberID');
       if (response.statusCode == 200) {
         final memberType = response.data['memberType'];
         print("Member Type: $memberType");
