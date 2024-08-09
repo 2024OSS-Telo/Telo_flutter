@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:telo/const/colors.dart';
 import 'package:telo/screens/notification_page.dart';
 import 'package:telo/screens/repair/repair_list_page.dart';
 
@@ -22,7 +23,7 @@ class HeaderHome extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Color(0xff93A98D),
+      backgroundColor: MAIN_COLOR,
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 15.0),
@@ -57,7 +58,7 @@ class BodyHome extends StatelessWidget {
         Flexible(
           flex: 2,
           child: Container(
-            color: Color(0xff93A98D),
+            color: MAIN_COLOR,
           ),
         ),
         Flexible(
@@ -65,7 +66,7 @@ class BodyHome extends StatelessWidget {
             child: Stack(
               children: [
                 Container(
-                  color: Color(0xff93A98D),
+                  color: MAIN_COLOR,
                 ),
                 Container(
                     decoration: BoxDecoration(
@@ -102,7 +103,7 @@ class BottomHome extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.home,
-                    color: Color(0xff757575),
+                    color: GRAY_COLOR,
                   ),
                   Text('홈')
                 ],
@@ -114,7 +115,7 @@ class BottomHome extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.chat_bubble, color: Color(0xff757575)),
+                  Icon(Icons.chat_bubble, color: GRAY_COLOR),
                   Text('채팅')
                 ],
               ),
@@ -125,7 +126,7 @@ class BottomHome extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.apartment, color: Color(0xff757575)),
+                  Icon(Icons.apartment, color: GRAY_COLOR),
                   Text('건물')
                 ],
               ),
@@ -143,7 +144,7 @@ class BottomHome extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.build, color: Color(0xff757575)),
+                      Icon(Icons.build, color: GRAY_COLOR),
                       Text('수리요청')
                     ],
                   ),
@@ -154,7 +155,7 @@ class BottomHome extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.person, color: Color(0xff757575)),
+                  Icon(Icons.person, color: GRAY_COLOR),
                   Text('내정보')
                 ],
               ),

@@ -3,11 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:telo/const/colors.dart';
+import 'package:telo/screens/chat/chat_list_page.dart';
+import 'package:telo/screens/chat/chat_page.dart';
 import 'package:telo/screens/home_page.dart';
 import 'package:telo/screens/notification_page.dart';
 import 'package:telo/screens/repair/repair_list_page.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'login_platform.dart';
+import 'const/login_platform.dart';
 
 void main() {
   KakaoSdk.init(
@@ -15,8 +18,8 @@ void main() {
   );
 
   runApp(const MaterialApp(
-    home: MyApp(),
-    //home: MainPage()
+    //home: MyApp(),
+    home: MainPage(),
     //home: AfterLogin(),
   ));
 }
@@ -149,7 +152,7 @@ class PageSlide extends StatelessWidget {
             controller: _pageController,
             children: [
               Container(
-                color: Color(0xff93A98D),
+                color: MAIN_COLOR,
                 child: Container(
                   padding: EdgeInsets.fromLTRB(20, 90, 0, 0),
                   child: Text(
@@ -164,7 +167,7 @@ class PageSlide extends StatelessWidget {
                 ),
               ),
               Container(
-                color: Color(0xff93A98D),
+                color: MAIN_COLOR,
                 child: Container(
                   padding: EdgeInsets.fromLTRB(20, 90, 0, 0),
                   child: Text(
@@ -254,7 +257,7 @@ class AfterLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xff93A98D),
+      backgroundColor: MAIN_COLOR,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -333,10 +336,9 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   final List<Widget> _widgetOptions = <Widget>[
     HomePage(),
+    ChatListPage(),
     RepairListPage(),
     RepairListPage(),
-    RepairListPage(),
-    // ChatPage(),
     // BuildingPage(),
     RepairListPage(),
     // MyPage()
@@ -372,8 +374,8 @@ class _MainPageState extends State<MainPage> {
           BottomNavigationBarItem(icon: Icon(Icons.person), label: '내정보')
         ],
         backgroundColor: Colors.white,
-        selectedItemColor: Color(0xff2c2c2c),
-        unselectedItemColor: Color(0xff757575),
+        selectedItemColor: DARK_GRAY_COLOR,
+        unselectedItemColor: GRAY_COLOR,
         type: BottomNavigationBarType.fixed,
         selectedFontSize: 10,
         unselectedFontSize: 10,
