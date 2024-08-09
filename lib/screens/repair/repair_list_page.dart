@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:telo/const/colors.dart';
 import 'package:telo/screens/repair/repair_request_page.dart';
 
 class RepairListPage extends StatelessWidget {
@@ -20,7 +21,7 @@ class RepairListPage extends StatelessWidget {
           );
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        backgroundColor: Color(0xff93A98D),
+        backgroundColor: MAIN_COLOR,
         child: const Icon(
           color: Colors.white,
           Icons.add,

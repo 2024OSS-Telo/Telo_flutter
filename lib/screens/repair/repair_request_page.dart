@@ -6,6 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:telo/const/colors.dart';
+
+import '../../const/backend_url.dart';
 
 class RepairRequestPage extends StatefulWidget {
   const RepairRequestPage({super.key});
@@ -15,7 +18,6 @@ class RepairRequestPage extends StatefulWidget {
 }
 
 class _RepairRequestPageState extends State<RepairRequestPage> {
-  String backendURL = "http://localhost:80";
 
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
@@ -26,13 +28,13 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
   int _estimateValue = 0;
   List<XFile> _pickedImages = [];
 
-  Future<void> _submitRequest() async {
+  Future<bool> _submitRequest() async {
     if (_pickedImages.isEmpty) {
       Fluttertoast.showToast(msg: "사진을 한 장 이상 등록해야 합니다.");
-      return;
+      return false;
     }
     if (!_formKey.currentState!.validate()) {
-      return;
+      return false;
     }
     _formKey.currentState!.save();
     List<String> imageURLs = [];
@@ -61,7 +63,9 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
     );
     if (response.statusCode != 200) {
       print('요청 전송에 실패했습니다.: ${response.statusMessage}');
+      return false;
     }
+    return true;
   }
 
   Future<String> uploadImage(XFile image) async {
@@ -70,7 +74,7 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
       "file": await MultipartFile.fromFile(image.path, filename: fileName),
     });
 
-    var response = await _dio.post(
+    final response = await _dio.post(
       backendURL + "/upload-image",
       data: formData,
     );
@@ -164,7 +168,7 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xffD9D9D9),
+                                      backgroundColor: LIGHT_GRAY_COLOR,
                                       fixedSize: Size(80, 80),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
@@ -172,7 +176,7 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                     ),
                                     child: Icon(
                                       Icons.image,
-                                      color: Color(0xff757575),
+                                      color: GRAY_COLOR,
                                     ),
                                   )
                               ],
@@ -198,17 +202,17 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                             maxLength: 15,
                             decoration: const InputDecoration(
                                 hintText: "제목",
-                                hintStyle: TextStyle(color: Color(0xffD9D9D9)),
+                                hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: Color(0xffD9D9D9),
+                                    color: LIGHT_GRAY_COLOR,
                                   ),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10)),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: Color(0xffD9D9D9),
+                                    color: LIGHT_GRAY_COLOR,
                                   ),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10)),
@@ -231,17 +235,17 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                             maxLines: 6,
                             decoration: const InputDecoration(
                                 hintText: "어떤 문제가 있는지 자세히 설명해 주세요.",
-                                hintStyle: TextStyle(color: Color(0xffD9D9D9)),
+                                hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: Color(0xffD9D9D9),
+                                    color: LIGHT_GRAY_COLOR,
                                   ),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10)),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: Color(0xffD9D9D9),
+                                    color: LIGHT_GRAY_COLOR,
                                   ),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10)),
@@ -264,17 +268,17 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                             keyboardType: TextInputType.number,
                             decoration: const InputDecoration(
                                 hintText: "₩",
-                                hintStyle: TextStyle(color: Color(0xffD9D9D9)),
+                                hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
                                 enabledBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: Color(0xffD9D9D9),
+                                    color: LIGHT_GRAY_COLOR,
                                   ),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10)),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: Color(0xffD9D9D9),
+                                    color: LIGHT_GRAY_COLOR,
                                   ),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10)),
@@ -286,15 +290,16 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                             child: TextButton(
                               style: TextButton.styleFrom(
                                 fixedSize: Size(350, 20),
-                                backgroundColor: Color(0xff93A98D),
+                                backgroundColor: MAIN_COLOR,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(7),
                                 ),
                               ),
-                              onPressed: (){
-                                _submitRequest();
-                                Fluttertoast.showToast(msg: "등록되었습니다.");
-                                Navigator.pop(context);
+                              onPressed: () async {
+                                if (await _submitRequest()) {
+                                  Fluttertoast.showToast(msg: "등록되었습니다.");
+                                  Navigator.pop(context);
+                                }
                               },
                               child: Text(
                                 '등록하기',
