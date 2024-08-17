@@ -4,21 +4,26 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:telo/const/colors.dart';
+import 'package:telo/screens/building/building_list_page.dart';
+import 'package:telo/screens/building/resident_list_page.dart';
 import 'package:telo/screens/chat/chat_list_page.dart';
-import 'package:telo/screens/chat/chat_page.dart';
 import 'package:telo/screens/home_page.dart';
-import 'package:telo/screens/notification_page.dart';
 import 'package:telo/screens/repair/repair_list_page.dart';
-import 'const/login_platform.dart';
-import 'package:dio/dio.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'const/login_platform.dart';
+import 'package:telo/services/member_service.dart';
+import 'const/backend_url.dart';
 import 'const/login_platform.dart';
 import 'package:dio/dio.dart';
 
 void main() {
   KakaoSdk.init(nativeAppKey: 'aa');
-  runApp(const MaterialApp(home: MyApp()));
+  void signOut(){}
+  runApp(
+      MaterialApp(
+          //home: MyApp()
+          home: MainPage(onSignOut: signOut)
+        //home: ResidentListPage()
+      )
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -29,6 +34,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final MemberService _memberService = MemberService();
   LoginPlatform _loginPlatform = LoginPlatform.none;
   bool _isLoading = true;
   bool _isTenantOrLandlord = false;
@@ -73,10 +79,9 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-
   Future<void> signUpUser(String memberID, String memberName, String profile, String provider) async {
     final response = await dio.post(
-      'http://localhost:80/api/members/signup',
+      "$backendURL/api/members/signup",
       data: {
         'memberID': memberID,
         'memberName': memberName,
@@ -97,13 +102,14 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> updateUserType(String memberType) async {
-    final String memberID = await findMemberID();
+    final String memberID = await _memberService.findMemberID(_loginPlatform);
+
     print('Member ID: $memberID');
     print('Member Type: $memberType');
     print('Member Type Type: ${memberType.runtimeType}');
 
     final response = await dio.post(
-      'http://localhost:80/api/members/updateMemberType/$memberID',
+      "$backendURL/api/members/updateMemberType/$memberID",
       data: {'memberType': memberType},
       options: Options(
         headers: {
@@ -117,32 +123,11 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  Future<String> findMemberID() async {
-    if (_loginPlatform == LoginPlatform.kakao) {
-      final user = await UserApi.instance.me();
-      String memberID = user.id.toString();
-      print('MemberID: $memberID');
-      print('Type of MemberID: ${memberID.runtimeType}');
-      return memberID;
-    } else if (_loginPlatform == LoginPlatform.google) {
-      final GoogleSignInAccount? googleUser = _googleSignIn.currentUser;
-      if (googleUser != null) {
-        final String memberID = googleUser.id;
-        print('Google MemberID: $memberID');
-        return memberID;
-      } else {
-        throw Exception('구글 로그인 정보가 없습니다.');
-      }
-    } else {
-      throw Exception('로그인 플랫폼을 찾을 수 없습니다.');
-    }
-  }
-
   Future<void> checkMemberType() async {
     try {
-      final String memberID = await findMemberID();
+      final String memberID = await _memberService.findMemberID(_loginPlatform);
       print("Checking member type for memberID: $memberID");
-      final response = await dio.get('http://localhost:80/api/members/$memberID');
+      final response = await dio.get("$backendURL/api/members/$memberID");
       if (response.statusCode == 200) {
         final memberType = response.data['memberType'];
         print("Member Type: $memberType");
@@ -511,7 +496,7 @@ class _MainPageState extends State<MainPage> {
     _widgetOptions = <Widget>[
       HomePage(onSignOut: widget.onSignOut),
       ChatListPage(),
-      RepairListPage(),
+      BuildingListPage(),
       RepairListPage(),
       RepairListPage(),
     ];
