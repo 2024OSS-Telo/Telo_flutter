@@ -5,20 +5,16 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:telo/const/colors.dart';
 import 'package:telo/screens/chat/chat_list_page.dart';
-import 'package:telo/screens/chat/chat_page.dart';
 import 'package:telo/screens/home_page.dart';
-import 'package:telo/screens/notification_page.dart';
 import 'package:telo/screens/repair/repair_list_page.dart';
-import 'const/login_platform.dart';
-import 'package:dio/dio.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
-import 'const/login_platform.dart';
 import 'const/login_platform.dart';
 import 'package:dio/dio.dart';
 
 void main() {
   KakaoSdk.init(nativeAppKey: 'aa');
-  runApp(const MaterialApp(home: MyApp()));
+  // runApp(const MaterialApp(home: MyApp()));
+  void signOut(){};
+  runApp(MaterialApp(home: MainPage(onSignOut: signOut)));
 }
 
 class MyApp extends StatefulWidget {

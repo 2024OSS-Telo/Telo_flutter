@@ -1,9 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:telo/const/colors.dart';
 import 'package:telo/models/chat_model.dart';
+import 'package:telo/services/repair_request_service.dart';
+
+import '../models/repair_request_model.dart';
+import '../screens/repair/claim_page.dart';
 
 class TextMessageBubble extends StatelessWidget {
   const TextMessageBubble(
@@ -65,11 +67,16 @@ class PhotoMessageBubble extends StatelessWidget {
 }
 
 class RequestMessageBubble extends StatelessWidget {
-  const RequestMessageBubble(
-      {super.key, required this.requestMessage, required this.isMe});
+  RequestMessageBubble(
+      {super.key,
+      required this.requestMessage,
+      required this.isMe,
+      required this.memberType});
 
+  final RepairRequestService _requestService = RepairRequestService();
   final RepairRequestMessage requestMessage;
   final bool isMe;
+  final String memberType;
 
   @override
   Widget build(BuildContext context) {
@@ -123,11 +130,79 @@ class RequestMessageBubble extends StatelessWidget {
                 ),
                 SizedBox(height: 10),
                 Text(
-                  "예상 금액: ${requestMessage.repairRequest.estimateValue.toString()}원",
+                  "예상 금액: ${requestMessage.repairRequest.estimatedValue.toString()}원",
                   style: TextStyle(
                     fontSize: 13,
                   ),
-                )
+                ),
+                if (memberType == 'landlord' &&
+                    requestMessage.repairRequest.repairState ==
+                        RepairState.NONE)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          fixedSize: Size(10, 8),
+                          backgroundColor: MAIN_COLOR,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                        ),
+                        onPressed: () {
+                          _requestService.updateRepairState(
+                              requestMessage.repairRequest.requestID,
+                              RepairState.UNDER_REPAIR);
+                        },
+                        child: Text("승인"),
+                      ),
+                      SizedBox(width: 10),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          fixedSize: Size(10, 8),
+                          backgroundColor: MAIN_COLOR,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                        ),
+                        onPressed: () {
+                          _requestService.updateRepairState(
+                              requestMessage.repairRequest.requestID,
+                              RepairState.REFUSAL);
+                        },
+                        child: Text("거절"),
+                      ),
+                    ],
+                  ),
+                if (memberType == 'tenant' &&
+                    requestMessage.repairRequest.repairState ==
+                        RepairState.UNDER_REPAIR)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          fixedSize: Size(10, 8),
+                          backgroundColor: MAIN_COLOR,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ClaimPage(
+                                requestID:
+                                    requestMessage.repairRequest.requestID,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text("청구하기"),
+                      ),
+                    ],
+                  )
               ],
             ),
           ),

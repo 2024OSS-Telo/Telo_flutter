@@ -22,6 +22,8 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final chatService = ChatService();
+  String _memberType = "tenant";
+  // String _memberType = "landlord";
 
   final _textController = TextEditingController();
   late StompClient _stompClient;
@@ -120,7 +122,9 @@ class _ChatPageState extends State<ChatPage> {
                               MessageType.REPAIR_REQUEST)
                             RequestMessageBubble(
                                 requestMessage: message as RepairRequestMessage,
-                                isMe: message.senderID == widget.memberID)
+                                isMe: message.senderID == widget.memberID,
+                              memberType: _memberType,
+                            )
                         ],
                       );
                     })),
