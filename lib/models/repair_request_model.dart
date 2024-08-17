@@ -8,8 +8,12 @@ class RepairRequest {
   final String tenantID;
   final String requestTitle;
   final String requestContent;
-  final int estimateValue;
+  late String claimContent;
+  final int estimatedValue;
+  late int actualValue;
+  final DateTime createdDate;
   final List<String> imageURL;
+  late List<String> receiptImageURL;
   RepairState repairState;
 
   RepairRequest({
@@ -18,9 +22,14 @@ class RepairRequest {
     required this.tenantID,
     required this.requestTitle,
     required this.requestContent,
-    required this.estimateValue,
+    required this.estimatedValue,
+    required this.createdDate,
     required this.imageURL,
-    required this.repairState
+    required this.repairState,
+    this.claimContent = '',
+    this.actualValue = 0,
+    this.receiptImageURL = const []
+
 });
 
   Map<String, dynamic> toJson() {
@@ -30,8 +39,12 @@ class RepairRequest {
       'tenantID': tenantID,
       'requestTitle': requestTitle,
       'requestContent': requestContent,
-      'estimateValue': estimateValue,
+      'claimContent': claimContent,
+      'estimatedValue': estimatedValue,
+      'actualValue': actualValue,
+      'createdDate': createdDate.toIso8601String(),
       'imageURL': imageURL,
+      'receiptImageURL': receiptImageURL,
       'repairState': repairState.toString().split('.').last,
     };
   }
@@ -43,8 +56,12 @@ class RepairRequest {
       tenantID: json['tenantID'],
       requestTitle: json['requestTitle'],
       requestContent: json['requestContent'],
-      estimateValue: json['estimateValue'],
+      claimContent: json['claimContent'] ?? '',
+      estimatedValue: json['estimatedValue'],
+      actualValue: json['actualValue'] ?? 0,
+      createdDate: DateTime.parse(json['createdDate']),
       imageURL: List<String>.from(json['imageURL']),
+      receiptImageURL: List<String>.from(json['receiptImageURL'] ?? []),
       repairState: RepairState.values.firstWhere(
             (e) => e.toString().split('.').last == json['repairState'],
         orElse: () => RepairState.NONE,

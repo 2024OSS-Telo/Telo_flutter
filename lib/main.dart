@@ -13,17 +13,14 @@ import 'package:telo/services/member_service.dart';
 import 'const/backend_url.dart';
 import 'const/login_platform.dart';
 import 'package:dio/dio.dart';
+import 'const/login_platform.dart';
+import 'package:dio/dio.dart';
 
 void main() {
   KakaoSdk.init(nativeAppKey: 'aa');
-  void signOut(){}
-  runApp(
-      MaterialApp(
-          //home: MyApp()
-          home: MainPage(onSignOut: signOut)
-        //home: ResidentListPage()
-      )
-  );
+  // runApp(const MaterialApp(home: MyApp()));
+  void signOut(){};
+  runApp(MaterialApp(home: MainPage(onSignOut: signOut)));
 }
 
 class MyApp extends StatefulWidget {

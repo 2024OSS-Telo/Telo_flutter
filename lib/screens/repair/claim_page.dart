@@ -6,26 +6,26 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:telo/const/colors.dart';
 
 import '../../const/backend_url.dart';
+import '../../const/colors.dart';
 
-class RepairRequestPage extends StatefulWidget {
-  const RepairRequestPage({super.key});
+class ClaimPage extends StatefulWidget {
+  const ClaimPage({super.key, required this.requestID});
+
+  final String requestID;
 
   @override
-  State<RepairRequestPage> createState() => _RepairRequestPageState();
+  State<ClaimPage> createState() => _ClaimPageState();
 }
 
-class _RepairRequestPageState extends State<RepairRequestPage> {
-
+class _ClaimPageState extends State<ClaimPage> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   final Dio _dio = Dio();
 
-  String _titleValue = "";
+  int _actualValue = 0;
   String _descriptionValue = "";
-  int _estimatedValue = 0;
   List<XFile> _pickedImages = [];
 
   Future<bool> _submitRequest() async {
@@ -44,16 +44,14 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
     }
 
     final requestPayload = {
-      'landlordID': 1,
-      'tenantID': 2,
-      'requestTitle': _titleValue,
-      'requestContent': _descriptionValue,
-      'imageURL': imageURLs,
-      'estimatedValue': _estimatedValue
+      'requestID': widget.requestID,
+      'actualValue': _actualValue,
+      'receiptImageURL': imageURLs,
+      'claimContent': _descriptionValue,
     };
 
     final response = await _dio.post(
-      backendURL + "/api/repair-request",
+      backendURL + "/api/repair-request/claim",
       options: Options(
         headers: {
           'Content-Type': 'application/json',
@@ -92,7 +90,7 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
         home: Scaffold(
             appBar: AppBar(
                 backgroundColor: Colors.white,
-                title: Text("수리 요청하기"),
+                title: Text("청구하기"),
                 centerTitle: true,
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back_ios),
@@ -110,7 +108,7 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "사진",
+                            "영수증 사진",
                             style: TextStyle(fontSize: 15),
                           ),
                           SizedBox(height: 10),
@@ -119,40 +117,40 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                             child: Row(
                               children: [
                                 ..._pickedImages.map((image) => Padding(
-                                      padding: EdgeInsets.only(right: 5.0),
-                                      child: Stack(children: [
-                                        ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10.0),
-                                          child: Image.file(File(image.path),
-                                              width: 80,
-                                              height: 80,
-                                              fit: BoxFit.cover),
-                                        ),
-                                        Positioned(
-                                          top: -10,
-                                          right: -10,
-                                          child: IconButton(
-                                            icon: Icon(Icons.cancel),
-                                            padding: EdgeInsets.zero,
-                                            constraints: BoxConstraints(),
-                                            onPressed: () {
-                                              setState(() {
-                                                _pickedImages.removeWhere((img) => img.path == image.path);
-                                              });
-                                            },
-                                          ),
-                                        )
-                                      ]),
-                                    )),
+                                  padding: EdgeInsets.only(right: 5.0),
+                                  child: Stack(children: [
+                                    ClipRRect(
+                                      borderRadius:
+                                      BorderRadius.circular(10.0),
+                                      child: Image.file(File(image.path),
+                                          width: 80,
+                                          height: 80,
+                                          fit: BoxFit.cover),
+                                    ),
+                                    Positioned(
+                                      top: -10,
+                                      right: -10,
+                                      child: IconButton(
+                                        icon: Icon(Icons.cancel),
+                                        padding: EdgeInsets.zero,
+                                        constraints: BoxConstraints(),
+                                        onPressed: () {
+                                          setState(() {
+                                            _pickedImages.removeWhere((img) => img.path == image.path);
+                                          });
+                                        },
+                                      ),
+                                    )
+                                  ]),
+                                )),
                                 if (_pickedImages.length < 5)
                                   ElevatedButton(
                                     onPressed: () async {
                                       final List<XFile>? images =
-                                          await _picker.pickMultiImage(
-                                              limit: 5,
-                                              maxHeight: 500,
-                                              maxWidth: 500);
+                                      await _picker.pickMultiImage(
+                                          limit: 5,
+                                          maxHeight: 500,
+                                          maxWidth: 500);
                                       if (images != null) {
                                         setState(() {
                                           List<XFile> newImages = images.where((image) => !_pickedImages.any((pickedImage) => pickedImage.path == image.path)).toList();
@@ -183,84 +181,21 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                             ),
                           ),
                           SizedBox(height: 20),
-                          Text(
-                            "제목",
-                            style: TextStyle(fontSize: 15),
-                          ),
-                          SizedBox(height: 10),
-                          TextFormField(
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "필수 입력값입니다.";
-                              }
-                            },
-                            onSaved: (value) {
-                              setState(() {
-                                _titleValue = value!;
-                              });
-                            },
-                            maxLength: 15,
-                            decoration: const InputDecoration(
-                                hintText: "제목",
-                                hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: LIGHT_GRAY_COLOR,
-                                  ),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: LIGHT_GRAY_COLOR,
-                                  ),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                )),
-                          ),
-                          Text("설명", style: TextStyle(fontSize: 15)),
-                          SizedBox(height: 10),
-                          TextFormField(
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "필수 입력값입니다.";
-                              }
-                            },
-                            onSaved: (value) {
-                              setState(() {
-                                _descriptionValue = value!;
-                              });
-                            },
-                            maxLength: 200,
-                            maxLines: 6,
-                            decoration: const InputDecoration(
-                                hintText: "어떤 문제가 있는지 자세히 설명해 주세요.",
-                                hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: LIGHT_GRAY_COLOR,
-                                  ),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: LIGHT_GRAY_COLOR,
-                                  ),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                )),
-                          ),
-                          Text("예상 청구 금액 (선택 사항)",
+                          Text("청구 금액",
                               style: TextStyle(fontSize: 15)),
                           SizedBox(height: 10),
                           TextFormField(
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return "필수 입력값입니다.";
+                              }
+                            },
                             onSaved: (value) {
                               setState(() {
                                 if (value != null && value.isNotEmpty) {
-                                  _estimatedValue = int.parse(value);
+                                  _actualValue = int.parse(value);
                                 } else {
-                                  _estimatedValue = 0;
+                                  _actualValue = 0;
                                 }
                               });
                             },
@@ -274,14 +209,42 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                     color: LIGHT_GRAY_COLOR,
                                   ),
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
+                                  BorderRadius.all(Radius.circular(10)),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(
                                     color: LIGHT_GRAY_COLOR,
                                   ),
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
+                                  BorderRadius.all(Radius.circular(10)),
+                                )),
+                          ),
+                          Text("설명 (선택 사항)", style: TextStyle(fontSize: 15)),
+                          SizedBox(height: 10),
+                          TextFormField(
+                            onSaved: (value) {
+                              setState(() {
+                                _descriptionValue = value!;
+                              });
+                            },
+                            maxLength: 200,
+                            maxLines: 6,
+                            decoration: const InputDecoration(
+                                hintText: "수리 과정에서 발생한 문제가 있다면 설명해 주세요.",
+                                hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: LIGHT_GRAY_COLOR,
+                                  ),
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: LIGHT_GRAY_COLOR,
+                                  ),
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
                                 )),
                           ),
                           SizedBox(height: 20),
