@@ -11,7 +11,9 @@ import 'package:telo/const/colors.dart';
 import '../../const/backend_url.dart';
 
 class RepairRequestPage extends StatefulWidget {
-  const RepairRequestPage({super.key});
+  const RepairRequestPage({super.key, required this.onUpdate});
+
+  final VoidCallback onUpdate;
 
   @override
   State<RepairRequestPage> createState() => _RepairRequestPageState();
@@ -295,9 +297,11 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                   borderRadius: BorderRadius.circular(7),
                                 ),
                               ),
+
                               onPressed: () async {
                                 if (await _submitRequest()) {
                                   Fluttertoast.showToast(msg: "등록되었습니다.");
+                                  widget.onUpdate();
                                   Navigator.pop(context);
                                 }
                               },

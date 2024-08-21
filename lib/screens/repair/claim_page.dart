@@ -11,9 +11,11 @@ import '../../const/backend_url.dart';
 import '../../const/colors.dart';
 
 class ClaimPage extends StatefulWidget {
-  const ClaimPage({super.key, required this.requestID});
+  const ClaimPage({super.key, required this.requestID, required this.roomID, required this.onUpdate});
 
   final String requestID;
+  final String roomID;
+  final VoidCallback onUpdate;
 
   @override
   State<ClaimPage> createState() => _ClaimPageState();
@@ -29,6 +31,7 @@ class _ClaimPageState extends State<ClaimPage> {
   List<XFile> _pickedImages = [];
 
   Future<bool> _submitRequest() async {
+    final String roomID = widget.roomID;
     if (_pickedImages.isEmpty) {
       Fluttertoast.showToast(msg: "사진을 한 장 이상 등록해야 합니다.");
       return false;
@@ -51,7 +54,7 @@ class _ClaimPageState extends State<ClaimPage> {
     };
 
     final response = await _dio.post(
-      backendURL + "/api/repair-request/claim",
+      backendURL + "/api/repair-request/$roomID/claim",
       options: Options(
         headers: {
           'Content-Type': 'application/json',
@@ -261,6 +264,7 @@ class _ClaimPageState extends State<ClaimPage> {
                               onPressed: () async {
                                 if (await _submitRequest()) {
                                   Fluttertoast.showToast(msg: "등록되었습니다.");
+                                  widget.onUpdate();
                                   Navigator.pop(context);
                                 }
                               },

@@ -90,9 +90,9 @@ class RepairDetailPage extends StatelessWidget {
                         fontSize: 15,
                         fontWeight: FontWeight.bold),),
                     SizedBox(
-                      height: 100, // 이미지의 높이 설정
+                      height: 200,
                       child: ListView.builder(
-                        scrollDirection: Axis.horizontal, // 가로 스크롤
+                        scrollDirection: Axis.horizontal,
                         itemCount: repairRequest.receiptImageURL.length,
                         itemBuilder: (context, index) {
                           return Padding(
@@ -116,7 +116,22 @@ class RepairDetailPage extends StatelessWidget {
                         fontSize: 15,
                         fontWeight: FontWeight.bold),),
                     SizedBox(height: 10,),
-                    PrograssBar(repairState: repairRequest.repairState,)
+                    PrograssBar(repairState: repairRequest.repairState,),
+                    SizedBox(height: 10,),
+                    Divider(color: LIGHT_GRAY_COLOR, thickness: 0.5),
+                    SizedBox(height: 10,),
+                    repairRequest.repairState == RepairState.REFUSAL ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("거절 사유", style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold),),
+                        SizedBox(height: 10,),
+                        Text(repairRequest.refusalReason, style: TextStyle(
+                          fontSize: 15,
+                        ),),
+                      ],
+                    ) : SizedBox()
                   ],
                 )
               )
