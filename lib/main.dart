@@ -20,7 +20,8 @@ void main() {
   KakaoSdk.init(nativeAppKey: 'aa');
   // runApp(const MaterialApp(home: MyApp()));
   void signOut(){};
-  runApp(MaterialApp(home: MainPage(onSignOut: signOut)));
+  runApp(
+      MaterialApp(home: MainPage(onSignOut: signOut)));
 }
 
 class MyApp extends StatefulWidget {

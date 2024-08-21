@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:telo/const/colors.dart';
-import 'package:telo/screens/building/widgets/FormSection.dart';
+import 'package:telo/screens/building/widgets/form_section_widget.dart';
 
 import '../../const/backend_url.dart';
 import '../../services/member_service.dart';
@@ -58,7 +58,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
     };
 
     final response = await _dio.post(
-      backendURL + "/building-resister",
+      backendURL + "/api/buildings/building-resister",
       options: Options(
         headers: {
           'Content-Type': 'application/json',
@@ -107,6 +107,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   PhotoSection(
+                    title: '건물 사진',
                     pickedImages: _pickedImages,
                     picker: _picker,
                     onImagesChanged: (images) {
@@ -115,26 +116,30 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
                       });
                     },
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
                   TextFieldSection(
                     label: "건물명",
                     hintText: "건물명",
                     maxLength: 15,
+                    counterText: "",
                     validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
                     onSaved: (value) => _buildingNameValue = value!,
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
                   TextFieldSection(
                     label: "도로명 주소",
                     hintText: "도로명 주소",
                     maxLength: 30,
+                    counterText: "",
                     validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
                     onSaved: (value) => _addressValue = value!,
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
                   TextFieldSection(
                     label: "총 세대수",
                     hintText: "총 세대수",
+                    maxLength: 5,
+                    counterText: "",
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -145,7 +150,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
                     },
                     onSaved: (value) => _householdsNumber = int.parse(value!),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
                   _buildSubmitButton(),
                 ],
               ),
@@ -184,7 +189,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
         onPressed: () async {
           if (await _submitRequest()) {
             Fluttertoast.showToast(msg: "등록되었습니다.");
-            Navigator.pop(context);
+            Navigator.pop(context, true);
           }
         },
         child: Text(

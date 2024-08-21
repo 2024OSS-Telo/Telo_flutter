@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:telo/screens/building/widgets/resident_list_form_widget.dart';
 
 import '../../../const/colors.dart';
 
@@ -16,6 +16,8 @@ class TextFieldSection extends StatelessWidget {
   final String? Function(String?)? validator;
   final void Function(String?)? onSaved;
 
+  final String counterText;
+
   const TextFieldSection({
     super.key,
     required this.label,
@@ -23,7 +25,7 @@ class TextFieldSection extends StatelessWidget {
     this.maxLength,
     this.keyboardType,
     this.validator,
-    this.onSaved,
+    this.onSaved, required this.counterText,
   });
 
   @override
@@ -41,6 +43,7 @@ class TextFieldSection extends StatelessWidget {
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
+            counterText: counterText,
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: LIGHT_GRAY_COLOR),
               borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -66,6 +69,7 @@ class PhoneNumberSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: 20),
         Text(
           '전화번호',
           style: TextStyle(fontSize: 15),
@@ -74,14 +78,14 @@ class PhoneNumberSection extends StatelessWidget {
         TextFormField(
           decoration: InputDecoration(
             hintText: '010-xxxx-xxxx',
-            hintStyle: TextStyle(color: Colors.grey),
+            hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
             counterText: "",
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
+              borderSide: BorderSide(color: LIGHT_GRAY_COLOR),
               borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey),
+              borderSide: BorderSide(color: LIGHT_GRAY_COLOR),
               borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
           ),
@@ -93,7 +97,7 @@ class PhoneNumberSection extends StatelessWidget {
           ],
           onSaved: (value) => onSaved?.call(_formatNumber(value ?? '')),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 20),
       ],
     );
   }
@@ -155,6 +159,7 @@ class RentTypeSelectorState extends State<RentTypeSelector> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: 20),
         Text("임대 유형", style: TextStyle(fontSize: 15)),
         SizedBox(height: 10),
         DropdownButtonFormField<String>(
@@ -222,13 +227,14 @@ class RentDetails extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (isMonthlyRent) ...[
+          SizedBox(height: 10),
           Text("월세 금액", style: TextStyle(fontSize: 15)),
           SizedBox(height: 10),
           TextFormField(
             controller: rentAmountController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              hintText: "n.n(만원)",
+              hintText: "n.n (만원)",
               hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
               enabledBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: LIGHT_GRAY_COLOR),
@@ -246,37 +252,9 @@ class RentDetails extends StatelessWidget {
             },
           ),
           SizedBox(height: 20),
-          Text("월세 납부일", style: TextStyle(fontSize: 15)),
-          SizedBox(height: 10),
-          TextFormField(
-            controller: paymentDateController,
-            keyboardType: TextInputType.datetime,
-            decoration: InputDecoration(
-              hintText: "YYMMDD",
-              hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: LIGHT_GRAY_COLOR),
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: LIGHT_GRAY_COLOR),
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              ),
-            ),
-            maxLength: 6,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "필수 입력값입니다.";
-              } else if (value.length < 6) {
-                return "최소 6자 이상 입력해야 합니다.";
-              }
-              return null;
-            },
-            onSaved: (value) {
-              if (onSavedPaymentDate != null) {
-                onSavedPaymentDate!(value ?? '');
-              }
-            },
+          DateNumberSection(
+            label: "월세 납부일",
+            onSaved: onSavedPaymentDate,
           ),
         ],
       ],
