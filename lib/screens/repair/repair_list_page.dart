@@ -10,6 +10,7 @@ import '../../widgets/repair_request_widget.dart';
 class RepairListPage extends StatefulWidget {
   const RepairListPage({super.key});
 
+  //TODO: 멤버 아이디 고치기
   final String memberID = '2';
 
   @override
@@ -30,7 +31,7 @@ class _RepairListPageState extends State<RepairListPage> {
     try {
       final repairRequests = await repairRequestService.getRepairRequestList(widget.memberID);
       setState(() {
-        _repairRequests = repairRequests;
+        _repairRequests = repairRequests.reversed.toList();
       });
     } catch (e) {
       print('수리 요청 목록 로딩 오류: $e');
@@ -48,12 +49,14 @@ class _RepairListPageState extends State<RepairListPage> {
         children: [
           Expanded(
               child: ListView.builder(
+                shrinkWrap: true,
                   itemCount: _repairRequests.length,
                   itemBuilder: (context, index) {
                     final repairRequest = _repairRequests[index];
                     return Column(
                       children: <Widget>[
-                        RepairRequestWidget(
+                        RepairRequestCard(
+                          key: ValueKey(repairRequest.requestID),
                           repairRequest: repairRequest,
                         )
                       ],
@@ -65,7 +68,7 @@ class _RepairListPageState extends State<RepairListPage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => RepairRequestPage()),
+            MaterialPageRoute(builder: (context) => RepairRequestPage(onUpdate: _initializeRequests,)),
           );
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),

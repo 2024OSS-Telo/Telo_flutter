@@ -1,5 +1,5 @@
 enum RepairState{
-  NONE, REFUSAL, APPROVAL, UNDER_REPAIR, CLAIM, COMPLETE
+  NONE, REFUSAL, UNDER_REPAIR, CLAIM, COMPLETE
 }
 
 class RepairRequest {
@@ -12,6 +12,7 @@ class RepairRequest {
   final int estimatedValue;
   late int actualValue;
   final DateTime createdDate;
+  late String refusalReason;
   final List<String> imageURL;
   late List<String> receiptImageURL;
   RepairState repairState;
@@ -28,8 +29,8 @@ class RepairRequest {
     required this.repairState,
     this.claimContent = '',
     this.actualValue = 0,
+    this.refusalReason = '',
     this.receiptImageURL = const []
-
 });
 
   Map<String, dynamic> toJson() {
@@ -42,6 +43,7 @@ class RepairRequest {
       'claimContent': claimContent,
       'estimatedValue': estimatedValue,
       'actualValue': actualValue,
+      'refusalReason' : refusalReason,
       'createdDate': createdDate.toIso8601String(),
       'imageURL': imageURL,
       'receiptImageURL': receiptImageURL,
@@ -59,6 +61,7 @@ class RepairRequest {
       claimContent: json['claimContent'] ?? '',
       estimatedValue: json['estimatedValue'],
       actualValue: json['actualValue'] ?? 0,
+      refusalReason: json['refusalReason'] ?? '',
       createdDate: DateTime.parse(json['createdDate']),
       imageURL: List<String>.from(json['imageURL']),
       receiptImageURL: List<String>.from(json['receiptImageURL'] ?? []),

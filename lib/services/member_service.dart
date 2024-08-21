@@ -5,6 +5,7 @@ import '../const/login_platform.dart';
 import 'package:dio/dio.dart';
 
 import '../const/backend_url.dart';
+import '../models/member_model.dart';
 
 class MemberService {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -31,18 +32,19 @@ class MemberService {
     }
   }
 
-  Future<String> getMemberType(String memberID) async {
+  Future<Member> getMember(String memberID) async {
     try {
       final response = await _dio.get('/api/members/$memberID');
       if (response.statusCode == 200) {
-        return response.data['memberType'];
+        return Member.fromJson(response.data as Map<String, dynamic>);
       }
       else {
-        throw Exception("멤버 타입 가져오기 실패: ${response.statusCode}");
+        throw Exception("멤버 가져오기 실패: ${response.statusCode}");
       }
     } catch (e) {
       print('Error: $e');
-      throw Exception("멤버 타입 가져오기 실패: $e");
+      throw Exception("멤버 가져오기 실패: $e");
     }
   }
+
 }

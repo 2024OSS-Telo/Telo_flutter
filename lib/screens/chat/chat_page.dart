@@ -22,8 +22,8 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final chatService = ChatService();
-  String _memberType = "tenant";
-  // String _memberType = "landlord";
+  //String _memberType = "tenant";
+  String _memberType = "landlord";
 
   final _textController = TextEditingController();
   late StompClient _stompClient;
@@ -35,9 +35,8 @@ class _ChatPageState extends State<ChatPage> {
     _stompClient.subscribe(
       destination: '/queue/${widget.roomID}',
       callback: (frame) {
-        setState(() {
-          _messages.add(TextMessage.fromJson(jsonDecode(frame.body!)));
-        });
+        _messages.add(TextMessage.fromJson(jsonDecode(frame.body!)));
+        _initializeMessages();
       },
     );
   }
@@ -65,7 +64,7 @@ class _ChatPageState extends State<ChatPage> {
     try {
       final messages = await chatService.getChatMessages(widget.roomID);
       setState(() {
-        _messages = messages;
+        _messages = messages.reversed.toList();
       });
     } catch (e) {
       print('메시지 로딩 오류: $e');
@@ -94,9 +93,10 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: Colors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+            backgroundColor: Colors.white,
             title: Text('상대 이름'),
             leading: IconButton(
               icon: Icon(Icons.arrow_back_ios),
@@ -107,27 +107,42 @@ class _ChatPageState extends State<ChatPage> {
         body: Column(
           children: [
             Expanded(
-                child: ListView.builder(
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      final message = _messages[index];
-                      return Column(
-                        children: <Widget>[
-                          if (message.messageType == MessageType.TEXT)
-                            TextMessageBubble(
-                              textMessage: message as TextMessage,
-                              isMe: message.senderID == widget.memberID,
-                            )
-                          else if (message.messageType ==
-                              MessageType.REPAIR_REQUEST)
-                            RequestMessageBubble(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                    reverse: true,
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final message = _messages[index];
+                        return Column(
+                          children: <Widget>[
+                            if (message.messageType == MessageType.TEXT)
+                              TextMessageBubble(
+                                textMessage: message as TextMessage,
+                                isMe: message.senderID == widget.memberID,
+                              )
+                            else if (message.messageType ==
+                                MessageType.REPAIR_REQUEST)
+                              RequestMessageBubble(
+                                onUpdate: _initializeMessages,
                                 requestMessage: message as RepairRequestMessage,
                                 isMe: message.senderID == widget.memberID,
-                              memberType: _memberType,
-                            )
-                        ],
-                      );
-                    })),
+                                memberType: _memberType,
+                                roomID: widget.roomID,
+                              )
+                            else if (message.messageType == MessageType.NOTICE)
+                              NoticeMessageBubble(
+                                onUpdate: _initializeMessages,
+                                noticeMessage: message as NoticeMessage,
+                                isMe: message.senderID == widget.memberID,
+                                memberType: _memberType,
+                                roomID: widget.roomID,
+                              )
+                          ],
+                        );
+                      }),
+                )),
             Container(
                 margin: EdgeInsets.only(top: 8),
                 padding: EdgeInsets.all(8),

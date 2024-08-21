@@ -1,6 +1,6 @@
 import 'package:telo/models/repair_request_model.dart';
 
-enum MessageType { TEXT, REPAIR_REQUEST, PHOTO }
+enum MessageType { TEXT, REPAIR_REQUEST, PHOTO, NOTICE }
 
 class ChatMessage {
   final String roomID;
@@ -38,6 +38,8 @@ class ChatMessage {
         return PhotoMessage.fromJson(json);
       case MessageType.REPAIR_REQUEST:
         return RepairRequestMessage.fromJson(json);
+      case MessageType.NOTICE:
+        return NoticeMessage.fromJson(json);
       default:
         throw Exception("message type 오류: $messageTypeString");
     }
@@ -131,6 +133,41 @@ class RepairRequestMessage extends ChatMessage {
       senderID: json['senderID'],
       sendDate: DateTime.parse(json['sendDate']),
       repairRequest: RepairRequest.fromJson(json['repairRequest']),
+    );
+  }
+}
+
+class NoticeMessage extends ChatMessage {
+  final RepairRequest repairRequest;
+  final String noticeType;
+
+  NoticeMessage({required String roomID,
+    required String senderID,
+    required DateTime sendDate,
+    required this.repairRequest,
+    required this.noticeType,
+  })
+      : super(
+      roomID: roomID,
+      senderID: senderID,
+      sendDate: sendDate,
+      messageType: MessageType.NOTICE);
+
+  @override
+  Map<String, dynamic> toJson() {
+    final json = super.toJson();
+    json['repairRequest'] = repairRequest.toJson();
+    json['noticeType'] = noticeType;
+    return json;
+  }
+
+  factory NoticeMessage.fromJson(Map<String, dynamic> json) {
+    return NoticeMessage(
+      roomID: json['roomID'],
+      senderID: json['senderID'],
+      sendDate: DateTime.parse(json['sendDate']),
+      repairRequest: RepairRequest.fromJson(json['repairRequest']),
+      noticeType: json['noticeType']
     );
   }
 }
