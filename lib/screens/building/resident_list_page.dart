@@ -85,7 +85,7 @@ class ResidentListPageState extends State<ResidentListPage> {
             },
           ),
           bottom: PreferredSize(
-            preferredSize: Size.fromHeight(230.0),
+            preferredSize: Size.fromHeight(290.0),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(

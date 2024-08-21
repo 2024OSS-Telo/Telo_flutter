@@ -109,7 +109,8 @@ class NoticeWidgetState extends State<NoticeWidget> {
             SizedBox(height: 3),
             TextField(
               controller: _noticeController,
-              maxLines: 2,
+              maxLength: 200,
+              maxLines: 3,
               decoration: InputDecoration(
                 hintText: '공지사항을 등록해주세요',
                 hintStyle: TextStyle(color: GRAY_COLOR),

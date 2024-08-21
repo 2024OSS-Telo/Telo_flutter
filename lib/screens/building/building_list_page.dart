@@ -39,10 +39,10 @@ class BuildingListPageState extends State<BuildingListPage> {
     setState(() {});
   }
 
-  Future<List<Building>> _fetchBuildings(String memberID) async {
+  Future<List<Building>> _fetchBuildings(String landlordID) async {
     try {
       final response =
-          await _dio.get('$backendURL/api/buildings/member/$memberID');
+          await _dio.get('$backendURL/api/buildings/member/$landlordID');
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
         print('DATA ${response.data}');

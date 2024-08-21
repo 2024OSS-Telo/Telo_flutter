@@ -30,7 +30,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
   String _addressValue = "";
   List<XFile> _pickedImages = [];
   int _householdsNumber = 1;
-  String _memberID = "aaa";
+  String _landlordID = "aaa";
   //final String _memberID = await _memberService.findMemberID(_loginPlatform);
 
   Future<bool> _submitRequest() async {
@@ -53,7 +53,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
       'buildingName': _buildingNameValue,
       'buildingAddress': _addressValue,
       'numberOfHouseholds': _householdsNumber,
-      'memberID': _memberID,
+      'landlordID': _landlordID,
       'imageURL': imageURLs,
     };
 
