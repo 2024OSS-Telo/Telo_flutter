@@ -34,7 +34,7 @@ class BuildingListPageState extends State<BuildingListPage> {
   }
 
   Future<void> _initializeData() async {
-    memberID = 'aaa'; // 멤버아이디 변경
+    memberID = 'aaa'; // TODO:멤버아이디 변경
     _buildingsFuture = _fetchBuildings(memberID);
     setState(() {});
   }

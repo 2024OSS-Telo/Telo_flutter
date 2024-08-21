@@ -15,8 +15,10 @@ import '../../services/member_service.dart';
 class ResidentResisterPage extends StatefulWidget {
   final String buildingID;
   final String buildingName;
+  //TODO: 임시 아이디 수정
+  final String tenantID = '1';
 
-  const ResidentResisterPage({super.key, required this.buildingID, required this.buildingName});
+  const ResidentResisterPage({super.key, required this.buildingID, required this.buildingName,});
 
   @override
   State<ResidentResisterPage> createState() => _ResidentResisterPage();
@@ -47,12 +49,6 @@ class _ResidentResisterPage extends State<ResidentResisterPage> {
   final TextEditingController _rentAmountController = TextEditingController();
   final TextEditingController _paymentDateController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    _buildingID = widget.buildingID;
-  }
-
   Future<bool> _submitRequest() async {
     if (_pickedImages.isEmpty) {
       Fluttertoast.showToast(msg: "사진을 한 장 이상 등록해야 합니다.");
@@ -80,12 +76,12 @@ class _ResidentResisterPage extends State<ResidentResisterPage> {
       'deposit' : _deposit,
       'contractExpirationDate': _contractExpirationDate,
 
-      'buildingID': _buildingID,
       'imageURL': imageURLs,
     };
 
     final response = await _dio.post(
-      "$backendURL/api/residents/resident-resister",
+      //TODO: url에 buildingID, tenantID 전달
+      "$backendURL/api/residents/resident-resister/${widget.buildingID}/${widget.tenantID}",
       options: Options(
         headers: {
           'Content-Type': 'application/json',

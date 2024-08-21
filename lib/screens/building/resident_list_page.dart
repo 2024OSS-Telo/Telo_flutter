@@ -57,6 +57,7 @@ class ResidentListPageState extends State<ResidentListPage> {
         return [];
       }
     } catch (e) {
+      print('주민 정보 가져오기 오류: $e');
       return [];
     }
   }

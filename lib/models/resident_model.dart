@@ -39,7 +39,7 @@ class Resident {
 
   factory Resident.fromJson(Map<String, dynamic> json) {
     return Resident(
-      residentID: json['residentID'],
+      residentID: json['residentID'] ?? '',
 
       residentName: json['residentName'],
       phoneNumber: json['phoneNumber'],
