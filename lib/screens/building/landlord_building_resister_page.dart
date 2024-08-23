@@ -1,53 +1,72 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:telo/const/colors.dart';
 import 'package:telo/screens/building/widgets/form_section_widget.dart';
-import 'package:telo/screens/building/widgets/resident_list_form_widget.dart';
+import 'package:telo/screens/building/widgets/initial_input_section_widget.dart';
 
 import '../../const/backend_url.dart';
 import '../../services/member_service.dart';
 
-class ResidentResisterPage extends StatefulWidget {
-  final String buildingID;
-  final String buildingName;
-  //TODO: 임시 아이디 수정
-  final String tenantID = '1';
-
-  const ResidentResisterPage({super.key, required this.buildingID, required this.buildingName,});
+class BuildingResisterPage extends StatefulWidget {
+  const BuildingResisterPage({super.key});
 
   @override
-  State<ResidentResisterPage> createState() => _ResidentResisterPage();
+  State<BuildingResisterPage> createState() => _BuildingResisterPage();
 }
 
-class _ResidentResisterPage extends State<ResidentResisterPage> {
-  final MemberService _memberService = MemberService();
-  final TextEditingController _phoneController = TextEditingController();
+class _BuildingResisterPage extends State<BuildingResisterPage> {
+  MemberService memberService = MemberService();
 
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   final Dio _dio = Dio();
 
-  String _residentNameValue = "";
-  String _phoneNumberValue = "";
-  String _apartmentNumber = "";
-  String _rentType = "월세";
+  String _buildingNameValue = "";
+  String _addressValue = "";
+  String _landlordRealName = "";
+  String _landlordPhoneNumber = "";
 
-  String _monthlyRentAmount = "";
-  String _monthlyRentPaymentDate = "";
-
-  String _deposit = "";
-  String _contractExpirationDate = "";
-
-  String _buildingID = "";
   List<XFile> _pickedImages = [];
+  int _householdsNumber = 1;
+  late String memberID;
 
-  final TextEditingController _rentAmountController = TextEditingController();
-  final TextEditingController _paymentDateController = TextEditingController();
+  bool _isLandlordNameEditable = true;
+  bool _isLandlordPhoneEditable = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    try {
+      memberID = await memberService.findMemberID();
+      await _fetchLandlordDetails();
+    } catch (error) {
+      print('멤버아이디 에러: $error');
+    }
+  }
+
+  Future<void> _fetchLandlordDetails() async {
+    try {
+      final response = await _dio.get( "$backendURL/api/members/$memberID");
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _landlordRealName = response.data['memberRealName'] ?? "";
+          _landlordPhoneNumber = response.data['phoneNumber'] ?? "";
+          _isLandlordNameEditable = _landlordRealName.isEmpty;
+          _isLandlordPhoneEditable = _landlordPhoneNumber.isEmpty;
+        });
+      }
+    } catch (error) {
+      print('임대인 정보 조회 에러: $error');
+    }
+  }
 
   Future<bool> _submitRequest() async {
     if (_pickedImages.isEmpty) {
@@ -55,6 +74,7 @@ class _ResidentResisterPage extends State<ResidentResisterPage> {
       return false;
     }
     if (!_formKey.currentState!.validate()) {
+      print("Form validation failed");
       return false;
     }
     _formKey.currentState!.save();
@@ -66,22 +86,17 @@ class _ResidentResisterPage extends State<ResidentResisterPage> {
     }
 
     final requestPayload = {
-      'residentName': _residentNameValue,
-      'phoneNumber': _phoneNumberValue,
-      'apartmentNumber': _apartmentNumber,
-      'rentType': _rentType,
-      'monthlyRentAmount' : _monthlyRentAmount,
-      'monthlyRentPaymentDate': _monthlyRentPaymentDate,
-
-      'deposit' : _deposit,
-      'contractExpirationDate': _contractExpirationDate,
-
+      'buildingName': _buildingNameValue,
+      'buildingAddress': _addressValue,
+      'numberOfHouseholds': _householdsNumber,
+      'landlordID': memberID,
+      'memberRealName': _landlordRealName,
+      'phoneNumber': _landlordPhoneNumber,
       'imageURL': imageURLs,
     };
 
     final response = await _dio.post(
-      //TODO: url에 buildingID, tenantID 전달
-      "$backendURL/api/residents/resident-resister/${widget.buildingID}/${widget.tenantID}",
+      "$backendURL/api/buildings/landlord/building-resister",
       options: Options(
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +145,7 @@ class _ResidentResisterPage extends State<ResidentResisterPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   PhotoSection(
-                    title: '계약서 사진',
+                    title: '건물 사진',
                     pickedImages: _pickedImages,
                     picker: _picker,
                     onImagesChanged: (images) {
@@ -139,64 +154,67 @@ class _ResidentResisterPage extends State<ResidentResisterPage> {
                       });
                     },
                   ),
-                  SizedBox(height: 20),
-                  TextFieldSection(
-                    label: "세대주 명",
-                    hintText: "세대주 명",
-                    maxLength: 10,
+                  SizedBox(height: 30),
+                  InitialInputSectionWidget(
+                    label: "임대인 이름",
+                    hintText: "최초 1회 입력",
+                    maxLength: 15,
                     counterText: "",
                     validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
-                    onSaved: (value) => _residentNameValue = value!,
+                    initialValue: _landlordRealName,
+                    isEditable: _isLandlordNameEditable,
+                      onSaved: (value) {
+                        _landlordRealName = value ?? _landlordRealName;
+                      }
                   ),
-                  SizedBox(height: 20),
-
-                  PhoneNumberSection(
-                    onSaved: (value) => _phoneNumberValue = value!,
+                  SizedBox(height: 30),
+                  InitialInputSectionWidget(
+                    label: "임대인 전화번호",
+                    hintText: "최초 1회 입력",
+                    maxLength: 15,
+                    counterText: "",
+                    validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
+                    initialValue: _landlordPhoneNumber,
+                    isEditable: _isLandlordPhoneEditable,
+                      onSaved: (value) {
+                        _landlordPhoneNumber = value ?? _landlordPhoneNumber;
+                      }
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
                   TextFieldSection(
-                    label: "상세 주소",
-                    hintText: "123동 45호",
+                    label: "건물명",
+                    hintText: "건물명",
+                    maxLength: 15,
+                    counterText: "",
+                    validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
+                    onSaved: (value) => _buildingNameValue = value!,
+                  ),
+                  SizedBox(height: 30),
+                  TextFieldSection(
+                    label: "도로명 주소",
+                    hintText: "도로명 주소",
                     maxLength: 30,
                     counterText: "",
                     validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
-                    onSaved: (value) => _apartmentNumber = value!,
+                    onSaved: (value) => _addressValue = value!,
                   ),
-                  SizedBox(height: 20),
-                  RentTypeSelector(
-                    initialValue: _rentType,
-                    onChanged: (value) {
-                      setState(() {
-                        _rentType = value;
-                      });
-                    },
-                    onSaved: (value) {
-                      _rentType = value ?? '월세';
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  RentDetails(
-                    rentType: _rentType,
-                    rentAmountController: _rentAmountController,
-                    paymentDateController: _paymentDateController,
-                    onSavedRentAmount: (value) => _monthlyRentAmount = value!,
-                    onSavedPaymentDate: (value) => _monthlyRentPaymentDate = value!,
-                  ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
                   TextFieldSection(
-                    label: "보증금",
-                    hintText: "n.n억 혹은 n.n만",
-                    maxLength: 10,
+                    label: "총 세대수",
+                    hintText: "총 세대수",
+                    maxLength: 5,
                     counterText: "",
-                    validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
-                    onSaved: (value) => _deposit = value!,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "필수 입력값입니다.";
+                      }
+                      final intValue = int.tryParse(value);
+                      return intValue == null ? "유효한 숫자를 입력해 주세요." : null;
+                    },
+                    onSaved: (value) => _householdsNumber = int.parse(value!),
                   ),
-                  SizedBox(height: 20),
-                  DateNumberSection(
-                    label: "계약 만료일",
-                    onSaved: (value) => _contractExpirationDate = value!,
-                  ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
                   _buildSubmitButton(),
                 ],
               ),
@@ -210,7 +228,7 @@ class _ResidentResisterPage extends State<ResidentResisterPage> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.white,
-      title: Text(widget.buildingName),
+      title: Text("건물 등록하기"),
       centerTitle: true,
       leading: IconButton(
         icon: Icon(Icons.arrow_back_ios),

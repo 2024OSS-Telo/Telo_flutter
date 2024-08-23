@@ -11,17 +11,21 @@ import 'package:telo/screens/home_page.dart';
 import 'package:telo/screens/repair/repair_list_page.dart';
 import 'package:telo/services/member_service.dart';
 import 'const/backend_url.dart';
+import 'const/key.dart';
 import 'const/login_platform.dart';
 import 'package:dio/dio.dart';
 import 'const/login_platform.dart';
 import 'package:dio/dio.dart';
 
 void main() {
-  KakaoSdk.init(nativeAppKey: 'aa');
-  // runApp(const MaterialApp(home: MyApp()));
-  void signOut(){};
+  KakaoSdk.init(nativeAppKey: kakaoNativeAppKey);
+  void signOut(){}
   runApp(
-      MaterialApp(home: MainPage(onSignOut: signOut)));
+      MaterialApp(
+          home: MainPage(onSignOut: signOut)
+        //home: MyApp(),
+
+      ));
 }
 
 class MyApp extends StatefulWidget {
@@ -100,7 +104,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> updateUserType(String memberType) async {
-    final String memberID = await _memberService.findMemberID(_loginPlatform);
+    final String memberID = await _memberService.findMemberID();
 
     print('Member ID: $memberID');
     print('Member Type: $memberType');
@@ -123,7 +127,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> checkMemberType() async {
     try {
-      final String memberID = await _memberService.findMemberID(_loginPlatform);
+      final String memberID = await _memberService.findMemberID();
       print("Checking member type for memberID: $memberID");
       final response = await dio.get("$backendURL/api/members/$memberID");
       if (response.statusCode == 200) {
@@ -487,17 +491,55 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   late final List<Widget> _widgetOptions;
+  String? memberID;
+  String _memberType = "";
+  MemberService memberService = MemberService();
+  final Dio _dio = Dio();
 
   @override
   void initState() {
     super.initState();
+    _initializeData();
     _widgetOptions = <Widget>[
       HomePage(onSignOut: widget.onSignOut),
       ChatListPage(),
-      BuildingListPage(),
+      Placeholder(),
       RepairListPage(),
       RepairListPage(),
     ];
+  }
+
+  Future<void> _initializeData() async {
+    try {
+      memberID = await memberService.findMemberID();
+      if (memberID != null) {
+        await _fetchMemberType();
+      } else {
+        print('Member ID could not be initialized.');
+      }
+    } catch (error) {
+      print('Error initializing member ID: $error');
+    }
+  }
+
+  Future<void> _fetchMemberType() async {
+    if (memberID == null) {
+      print('Member ID is null');
+      return;
+    }
+
+    try {
+      final response = await _dio.get('$backendURL/api/members/$memberID/memberType');
+      if (response.statusCode == 200) {
+        setState(() {
+          _memberType = response.data;
+        });
+      } else {
+        print('Failed to load member type, status code: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error loading member type: $error');
+    }
   }
 
   void _onItemTapped(int index) {
@@ -515,7 +557,11 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: _selectedIndex == 2
+            ? (_memberType == 'landlord'
+            ? LandlordBuildingListPage()
+            : TenantBuildingListPage())
+            : _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
@@ -532,7 +578,7 @@ class _MainPageState extends State<MainPage> {
               label: '채팅'),
           BottomNavigationBarItem(icon: Icon(Icons.apartment), label: '건물'),
           BottomNavigationBarItem(icon: Icon(Icons.build), label: '수리요청'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '내정보')
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: '바보')
         ],
         backgroundColor: Colors.white,
         selectedItemColor: DARK_GRAY_COLOR,
