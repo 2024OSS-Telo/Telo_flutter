@@ -560,7 +560,7 @@ class _MainPageState extends State<MainPage> {
         child: _selectedIndex == 2
             ? (_memberType == 'landlord'
             ? LandlordBuildingListPage()
-            : TenantBuildingListPage())
+            : TenantBuildingListPage(buildingID: 'aaa', buildingName: 'aaa',))
             : _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: BottomNavigationBar(
