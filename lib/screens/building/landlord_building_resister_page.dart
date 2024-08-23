@@ -89,6 +89,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
       'buildingName': _buildingNameValue,
       'buildingAddress': _addressValue,
       'numberOfHouseholds': _householdsNumber,
+      'numberOfRentedHouseholds': 0,
       'landlordID': memberID,
       'memberRealName': _landlordRealName,
       'phoneNumber': _landlordPhoneNumber,
@@ -158,21 +159,17 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
                   InitialInputSectionWidget(
                     label: "임대인 이름",
                     hintText: "최초 1회 입력",
-                    maxLength: 15,
+                    maxLength: 10,
                     counterText: "",
                     validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
                     initialValue: _landlordRealName,
                     isEditable: _isLandlordNameEditable,
-                      onSaved: (value) {
-                        _landlordRealName = value ?? _landlordRealName;
-                      }
+                    onSaved: (value) {
+                      _landlordRealName = value ?? _landlordRealName;
+                    },
                   ),
                   SizedBox(height: 30),
-                  InitialInputSectionWidget(
-                    label: "임대인 전화번호",
-                    hintText: "최초 1회 입력",
-                    maxLength: 15,
-                    counterText: "",
+                  InitialPhoneNumberSection(
                     validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
                     initialValue: _landlordPhoneNumber,
                     isEditable: _isLandlordPhoneEditable,

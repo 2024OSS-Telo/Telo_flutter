@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:telo/const/colors.dart';
-import 'package:telo/screens/building/tenant_resident_resister_page.dart';
 import 'package:telo/screens/building/widgets/count_residents_widget.dart';
 import 'package:telo/screens/building/widgets/notice_widget.dart';
 
@@ -136,7 +135,7 @@ class ResidentListPageState extends State<ResidentListPage> {
               return Center(
                 child: Text(
                   textAlign: TextAlign.center,
-                  '등록된 입주민이 없습니다.\n우측 하단의 버튼을 통해 입주민을 등록해 주세요.',
+                  '등록된 입주민이 없습니다.\n세입자가 등록하기를 기다려 주세요.',
                   style: TextStyle(
                     color: GRAY_COLOR,
                     fontSize: 12.0,
@@ -162,31 +161,6 @@ class ResidentListPageState extends State<ResidentListPage> {
               );
             }
           },
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ResidentResisterPage(
-                      buildingID: widget.buildingID,
-                      buildingName: widget.buildingName)),
-            );
-            if (result == true) {
-              setState(() {
-                _residentsFuture =
-                    _fetchResidents(widget.buildingID, widget.buildingName);
-              });
-            }
-          },
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-          backgroundColor: MAIN_COLOR,
-          child: const Icon(
-            color: Colors.white,
-            Icons.add,
-            size: 30,
-          ),
         ),
       ),
     );
@@ -219,7 +193,7 @@ class ResidentListPageState extends State<ResidentListPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '${resident.apartmentNumber} 호    ${resident.residentName}',
+                      '${resident.apartmentNumber}     ${resident.residentName}',
                       style: TextStyle(
                         fontSize: 13.0,
                         fontWeight: FontWeight.bold,

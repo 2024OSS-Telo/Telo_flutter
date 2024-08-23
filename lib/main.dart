@@ -23,7 +23,7 @@ void main() {
   runApp(
       MaterialApp(
           home: MainPage(onSignOut: signOut)
-        //home: MyApp(),
+          //home: MyApp(),
 
       ));
 }
@@ -578,7 +578,7 @@ class _MainPageState extends State<MainPage> {
               label: '채팅'),
           BottomNavigationBarItem(icon: Icon(Icons.apartment), label: '건물'),
           BottomNavigationBarItem(icon: Icon(Icons.build), label: '수리요청'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '바보')
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: '내정보')
         ],
         backgroundColor: Colors.white,
         selectedItemColor: DARK_GRAY_COLOR,
