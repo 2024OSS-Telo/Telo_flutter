@@ -158,19 +158,27 @@ class _RequestRefusePageState extends State<RequestRefusePage> {
               style: TextStyle(fontSize: 15)),
           SizedBox(height: 10),
           SizedBox(
-            height: 100,
+            height: 70,
             child: ListView.builder(
               scrollDirection: Axis.horizontal, // 가로 스크롤
               itemCount: widget.repairRequest.imageURL.length,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
-                  child: Image.network(
-                    widget.repairRequest.imageURL[index],
+                  child:
+                  //TODO: 테스트 이미지 삭제
+                  Image.asset(
+                    'assets/image/buildingIMGtest.png',
+                    fit: BoxFit.cover,
                     width: 70,
                     height: 70,
-                    fit: BoxFit.cover,
                   ),
+                  // Image.network(
+                  //   widget.repairRequest.imageURL[index],
+                  //   width: 70,
+                  //   height: 70,
+                  //   fit: BoxFit.cover,
+                  // ),
                 );
               },
             ),

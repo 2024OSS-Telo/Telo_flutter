@@ -17,8 +17,6 @@ class RepairRequestCard extends StatefulWidget {
 class _RepairRequestCardState extends State<RepairRequestCard> {
   @override
   Widget build(BuildContext context) {
-    int contentLength = widget.repairRequest.requestContent.length;
-    contentLength >= 50 ? contentLength = 49 : contentLength--;
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -45,14 +43,18 @@ class _RepairRequestCardState extends State<RepairRequestCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text(
-                            widget.repairRequest.requestTitle,
-                            style: TextStyle(
-                                fontSize: 15, fontWeight: FontWeight.bold),
+                          Flexible(
+                            child: Text(
+                              widget.repairRequest.requestTitle,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w600),
+                            ),
                           ),
                           SizedBox(
-                            width: 20,
+                            width: 10,
                           ),
                           Text(
                             widget.repairRequest.createdDate
@@ -65,13 +67,21 @@ class _RepairRequestCardState extends State<RepairRequestCard> {
                       SizedBox(
                         height: 10,
                       ),
-                      Text(
-                        "${widget.repairRequest.requestContent.substring(0, contentLength)}···",
-                        style: TextStyle(color: GRAY_COLOR),
-                          softWrap: true
-                      )
+                      Text(widget.repairRequest.requestContent,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: GRAY_COLOR),
+                          softWrap: true),
                     ],
                   ),
+                ),
+                SizedBox(width: 20,),
+                //TODO: 테스트 이미지 삭제
+                Image.asset(
+                  'assets/image/buildingIMGtest.png',
+                  width: 70,
+                  height: 70,
+                  fit: BoxFit.cover,
                 ),
                 // Image.network(
                 //   widget.repairRequest.imageURL.first,
@@ -157,7 +167,7 @@ class _PrograssBarState extends State<PrograssBar> {
           Row(
             children: [
               Text(widget.repairState == RepairState.REFUSAL ? '거절' : '승인'),
-              SizedBox(width:5),
+              SizedBox(width: 5),
               Spacer(flex: 1),
               Text('수리중'),
               Spacer(flex: 1),
@@ -181,7 +191,11 @@ class _PrograssBarState extends State<PrograssBar> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              widget.repairState == RepairState.REFUSAL ? Icons.close : status == 'completed' ? Icons.done : null,
+              widget.repairState == RepairState.REFUSAL
+                  ? Icons.close
+                  : status == 'completed'
+                      ? Icons.done
+                      : null,
               color: Colors.white,
               size: 20,
             ),
@@ -210,8 +224,8 @@ class _PrograssBarState extends State<PrograssBar> {
                   color: LIGHT_GRAY_COLOR,
                   shape: BoxShape.circle,
                 ),
-      width: 15,
-      height: 15,
+                width: 15,
+                height: 15,
               );
   }
 

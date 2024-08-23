@@ -11,7 +11,7 @@ class RepairListPage extends StatefulWidget {
   const RepairListPage({super.key});
 
   //TODO: 멤버 아이디 고치기
-  final String memberID = '2';
+  final String memberID = '1';
 
   @override
   State<RepairListPage> createState() => _RepairListPageState();

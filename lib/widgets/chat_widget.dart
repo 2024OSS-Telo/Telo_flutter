@@ -8,10 +8,14 @@ import 'package:telo/services/chat_service.dart';
 import 'package:telo/services/member_service.dart';
 import 'package:telo/services/repair_request_service.dart';
 
+import '../models/building_model.dart';
 import '../models/member_model.dart';
 import '../models/repair_request_model.dart';
+import '../models/resident_model.dart';
 import '../screens/repair/claim_page.dart';
 import '../screens/repair/repair_detail_page.dart';
+import '../services/building_service.dart';
+import '../services/resident_service.dart';
 
 class TextMessageBubble extends StatelessWidget {
   const TextMessageBubble(
@@ -44,7 +48,7 @@ class TextMessageBubble extends StatelessWidget {
           margin: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
           child: Container(
             constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.7),
+                maxWidth: MediaQuery.of(context).size.width * 0.6),
             child: Text(
               textMessage.message,
               style: TextStyle(
@@ -98,9 +102,6 @@ class _RequestMessageBubbleState extends State<RequestMessageBubble> {
 
   @override
   Widget build(BuildContext context) {
-    int contentLength =
-        widget.requestMessage.repairRequest.requestContent.length;
-    contentLength >= 50 ? contentLength = 49 : contentLength--;
     return Row(
       mainAxisAlignment:
           widget.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -138,12 +139,19 @@ class _RequestMessageBubbleState extends State<RequestMessageBubble> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Image.network(
-                      widget.requestMessage.repairRequest.imageURL.first,
-                      width: 40,
-                      height: 40,
+                    //TODO: 테스트 이미지 삭제
+                    child: Image.asset(
+                      'assets/image/buildingIMGtest.png',
+                      width: 60,
+                      height: 60,
                       fit: BoxFit.cover,
                     ),
+                    // child: Image.network(
+                    //   widget.requestMessage.repairRequest.imageURL.first,
+                    //   width: 40,
+                    //   height: 40,
+                    //   fit: BoxFit.cover,
+                    // ),
                   ),
                   Text(
                     "제목: ${widget.requestMessage.repairRequest.requestTitle}",
@@ -153,7 +161,9 @@ class _RequestMessageBubbleState extends State<RequestMessageBubble> {
                   ),
                   SizedBox(height: 10),
                   Text(
-                    "상세 설명: ${widget.requestMessage.repairRequest.requestContent.substring(0, contentLength)}···",
+                    "상세 설명: ${widget.requestMessage.repairRequest.requestContent}",
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 13,
                     ),
@@ -285,12 +295,20 @@ class NoticeMessageBubble extends StatelessWidget {
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
-                child: Image.network(
-                  noticeMessage.repairRequest.imageURL.first,
-                  width: 40,
-                  height: 40,
+                child:
+                    //TODO: 테스트 이미지 삭제
+                    Image.asset(
+                  'assets/image/buildingIMGtest.png',
+                  width: 60,
+                  height: 60,
                   fit: BoxFit.cover,
                 ),
+                // Image.network(
+                //   noticeMessage.repairRequest.imageURL.first,
+                //   width: 40,
+                //   height: 40,
+                //   fit: BoxFit.cover,
+                // ),
               ),
               noticeType == 'approval'
                   ? Column(
@@ -445,42 +463,150 @@ class ChatRoomCard extends StatefulWidget {
 
 class _ChatRoomCardState extends State<ChatRoomCard> {
   final memberService = MemberService();
-  late Member _member;
+  final residentService = ResidentService();
+  final chatService = ChatService();
+  Member? _other; // 대화 상대
+  Resident? _resident; // 계약건
+  ChatMessage? _recentMessage;
 
   @override
   void initState() {
     super.initState();
-    _getMember();
+    _initializeInfo();
   }
 
-  Future<void> _getMember() async {
+  Future<void> _initializeInfo() async {
     try {
-      final member = await memberService.getMember(widget.memberID);
+      final Member other;
+      if (widget.chatRoom.tenantID == widget.memberID) {
+        other = await memberService.getMember(widget.chatRoom.landlordID);
+      } else {
+        other = await memberService.getMember(widget.chatRoom.tenantID);
+      }
+
+      final residents =
+          await residentService.getResidentsByTenantIdAndLandlordId(
+              widget.chatRoom.tenantID, widget.chatRoom.landlordID);
+      final resident = residents.first;
+
+      final messages =
+          await chatService.getChatMessages(widget.chatRoom.roomID);
+      final message = messages.last;
       setState(() {
-        _member = member;
+        _other = other;
+        _resident = resident;
+        _recentMessage = message;
       });
     } catch (e) {
-      print('멤버 정보 로딩 오류: $e');
+      print('채팅룸 정보 로딩 실패: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatPage(
-              roomID: widget.chatRoom.roomID,
-              memberID: widget.memberID,
+    if (_other == null || _resident == null || _recentMessage == null) {
+      return CircularProgressIndicator();
+    }
+    return InkWell(
+        splashColor: Colors.transparent,
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(
+                roomID: widget.chatRoom.roomID,
+                memberID: widget.memberID,
+              ),
             ),
-          ),
-        );
-      },
-      child: Column(
-
-      )
-    );
+          );
+        },
+        child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            margin: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
+            child: Row(
+              children: [
+                //TODO: 테스트 이미지 삭제
+                ClipOval(
+                  child: Image.asset(
+                    'assets/image/buildingIMGtest.png',
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                // ClipOval(
+                //   child: Image.network(
+                //     _other!.profile,
+                //     width: 50,
+                //     height: 50,
+                //     fit: BoxFit.cover,
+                //   ),
+                // ),
+                SizedBox(
+                  width: 15,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Text(
+                            _other!.memberNickName,
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Text(
+                            "${_resident!.buildingName} ${_resident!.apartmentNumber}",
+                            style: TextStyle(
+                                fontSize: 12.0, color: DARK_MAIN_COLOR),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      _recentMessage!.messageType == MessageType.TEXT
+                          ? Text(
+                              (_recentMessage as TextMessage).message,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style:
+                                  TextStyle(fontSize: 12.0, color: GRAY_COLOR),
+                            )
+                          : _recentMessage!.messageType ==
+                                  MessageType.REPAIR_REQUEST
+                              ? Text(
+                                  "\"${(_recentMessage as RepairRequestMessage).repairRequest.requestTitle}\" 요청이 등록되었습니다.",
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontSize: 12.0, color: GRAY_COLOR),
+                                )
+                              : _recentMessage!.messageType ==
+                                      MessageType.NOTICE
+                                  ? Text(
+                                      "\"${(_recentMessage as NoticeMessage).repairRequest.requestTitle}\"의 새로운 메시지가 있습니다.",
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: 12.0, color: GRAY_COLOR),
+                                    )
+                                  : Text(
+                                      "사진을 보냈습니다.",
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                          fontSize: 12.0, color: GRAY_COLOR),
+                                    )
+                    ],
+                  ),
+                )
+              ],
+            )));
   }
 }

@@ -41,21 +41,21 @@ class Resident {
     return Resident(
       residentID: json['residentID'] ?? '',
 
-      residentName: json['residentName'],
-      phoneNumber: json['phoneNumber'],
-      apartmentNumber: json['apartmentNumber'],
-      rentType: json['rentType'],
+      residentName: json['residentName'] ?? '',
+      phoneNumber: json['phoneNumber'] ?? '',
+      apartmentNumber: json['apartmentNumber'] ?? '',
+      rentType: json['rentType'] ?? '',
 
       monthlyRentAmount: json['monthlyRentAmount'] ?? '',
       monthlyRentPaymentDate: json['monthlyRentPaymentDate'] ?? '',
 
-      deposit: json['deposit'],
-      contractExpirationDate: json['contractExpirationDate'],
+      deposit: json['deposit'] ?? '',
+      contractExpirationDate: json['contractExpirationDate'] ?? '',
 
-      buildingID: json['building']['buildingID'],
-      buildingName: json['building']['buildingName'],
-      notice: json['building']['notice'],
-      imageURL: List<String>.from(json['building']['imageURL']),
+      buildingID: json['building']['buildingID'] ?? '',
+      buildingName: json['building']['buildingName'] ?? '',
+      notice: json['building']['notice'] ?? '',
+      imageURL: List<String>.from(json['building']['imageURL']) ?? [],
     );
   }
 }

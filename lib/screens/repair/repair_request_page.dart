@@ -46,8 +46,9 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
     }
 
     final requestPayload = {
+      // TODO: 아이디 바꾸기
       'landlordID': 1,
-      'tenantID': 2,
+      'tenantID': 3,
       'requestTitle': _titleValue,
       'requestContent': _descriptionValue,
       'imageURL': imageURLs,

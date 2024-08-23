@@ -16,7 +16,7 @@ class ResidentResisterPage extends StatefulWidget {
   final String buildingID;
   final String buildingName;
   //TODO: 임시 아이디 수정
-  final String tenantID = '1';
+  final String tenantID = '3';
 
   const ResidentResisterPage({super.key, required this.buildingID, required this.buildingName,});
 

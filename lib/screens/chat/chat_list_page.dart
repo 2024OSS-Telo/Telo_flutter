@@ -9,6 +9,7 @@ import 'chat_page.dart';
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
 
+  //TODO: 아이디 바꾸기
   final String memberID = '1';
 
   @override
@@ -27,9 +28,9 @@ class _ChatListPageState extends State<ChatListPage> {
 
   Future<void> _initializeChatRooms() async {
     try {
-      final chatRooms = _chatService.getChatRoomList(widget.memberID);
+      final chatRooms = await _chatService.getChatRoomList(widget.memberID);
       setState(() {
-        _chatRooms = _chatRooms.reversed.toList();
+        _chatRooms = chatRooms.reversed.toList();
       });
     } catch (e) {
       print('채팅룸 로딩 오류: $e');
@@ -44,25 +45,30 @@ class _ChatListPageState extends State<ChatListPage> {
         backgroundColor: Colors.white,
         title: Text("채팅"),
       ),
-      body:  Column(
-        children: [
-          Expanded(
-              child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _chatRooms.length,
-                  itemBuilder: (context, index) {
-                    final chatRoom = _chatRooms[index];
-                    return Column(
-                      children: <Widget>[
-                        ChatRoomCard(
-                          memberID: widget.memberID,
-                          chatRoom: chatRoom,
-                        )
-                      ],
-                    );
-                  })),
-        ],
-      ),
+      body: _chatRooms.isEmpty
+          ? Align(
+              alignment: Alignment.center,
+              child: Text(
+                "아직 채팅이 없습니다.",
+              ))
+          : Column(
+              children: [
+                Expanded(
+                    child: ListView.builder(
+                        itemCount: _chatRooms.length,
+                        itemBuilder: (context, index) {
+                          final chatRoom = _chatRooms[index];
+                          return Column(
+                            children: <Widget>[
+                              ChatRoomCard(
+                                memberID: widget.memberID,
+                                chatRoom: chatRoom,
+                              )
+                            ],
+                          );
+                        })),
+              ],
+            ),
     );
   }
 }

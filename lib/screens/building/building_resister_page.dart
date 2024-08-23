@@ -30,7 +30,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
   String _addressValue = "";
   List<XFile> _pickedImages = [];
   int _householdsNumber = 1;
-  String _landlordID = "aaa";
+  String _landlordID = "1"; //TODO: 아이디 바꾸기
   //final String _memberID = await _memberService.findMemberID(_loginPlatform);
 
   Future<bool> _submitRequest() async {
