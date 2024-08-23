@@ -1,13 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
-
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:telo/const/colors.dart';
 import 'package:telo/screens/building/widgets/form_section_widget.dart';
+import 'package:telo/screens/building/widgets/initial_input_section_widget.dart';
 
 import '../../const/backend_url.dart';
 import '../../services/member_service.dart';
@@ -20,7 +18,7 @@ class BuildingResisterPage extends StatefulWidget {
 }
 
 class _BuildingResisterPage extends State<BuildingResisterPage> {
-  final MemberService _memberService = MemberService();
+  MemberService memberService = MemberService();
 
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
@@ -28,10 +26,47 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
 
   String _buildingNameValue = "";
   String _addressValue = "";
+  String _landlordRealName = "";
+  String _landlordPhoneNumber = "";
+
   List<XFile> _pickedImages = [];
   int _householdsNumber = 1;
-  String _landlordID = "1"; //TODO: 아이디 바꾸기
-  //final String _memberID = await _memberService.findMemberID(_loginPlatform);
+  late String memberID;
+
+  bool _isLandlordNameEditable = true;
+  bool _isLandlordPhoneEditable = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    try {
+      memberID = await memberService.findMemberID();
+      await _fetchLandlordDetails();
+    } catch (error) {
+      print('멤버아이디 에러: $error');
+    }
+  }
+
+  Future<void> _fetchLandlordDetails() async {
+    try {
+      final response = await _dio.get( "$backendURL/api/members/$memberID");
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _landlordRealName = response.data['memberRealName'] ?? "";
+          _landlordPhoneNumber = response.data['phoneNumber'] ?? "";
+          _isLandlordNameEditable = _landlordRealName.isEmpty;
+          _isLandlordPhoneEditable = _landlordPhoneNumber.isEmpty;
+        });
+      }
+    } catch (error) {
+      print('임대인 정보 조회 에러: $error');
+    }
+  }
 
   Future<bool> _submitRequest() async {
     if (_pickedImages.isEmpty) {
@@ -39,6 +74,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
       return false;
     }
     if (!_formKey.currentState!.validate()) {
+      print("Form validation failed");
       return false;
     }
     _formKey.currentState!.save();
@@ -53,12 +89,14 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
       'buildingName': _buildingNameValue,
       'buildingAddress': _addressValue,
       'numberOfHouseholds': _householdsNumber,
-      'landlordID': _landlordID,
+      'landlordID': memberID,
+      'memberRealName': _landlordRealName,
+      'phoneNumber': _landlordPhoneNumber,
       'imageURL': imageURLs,
     };
 
     final response = await _dio.post(
-      backendURL + "/api/buildings/building-resister",
+      "$backendURL/api/buildings/landlord/building-resister",
       options: Options(
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +119,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
     });
 
     final response = await _dio.post(
-      backendURL + "/upload-image",
+      "$backendURL/upload-image",
       data: formData,
     );
 
@@ -115,6 +153,32 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
                         _pickedImages = images;
                       });
                     },
+                  ),
+                  SizedBox(height: 30),
+                  InitialInputSectionWidget(
+                    label: "임대인 이름",
+                    hintText: "최초 1회 입력",
+                    maxLength: 15,
+                    counterText: "",
+                    validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
+                    initialValue: _landlordRealName,
+                    isEditable: _isLandlordNameEditable,
+                      onSaved: (value) {
+                        _landlordRealName = value ?? _landlordRealName;
+                      }
+                  ),
+                  SizedBox(height: 30),
+                  InitialInputSectionWidget(
+                    label: "임대인 전화번호",
+                    hintText: "최초 1회 입력",
+                    maxLength: 15,
+                    counterText: "",
+                    validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
+                    initialValue: _landlordPhoneNumber,
+                    isEditable: _isLandlordPhoneEditable,
+                      onSaved: (value) {
+                        _landlordPhoneNumber = value ?? _landlordPhoneNumber;
+                      }
                   ),
                   SizedBox(height: 30),
                   TextFieldSection(

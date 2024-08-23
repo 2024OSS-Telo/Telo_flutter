@@ -81,7 +81,7 @@ class _ResidentResisterPage extends State<ResidentResisterPage> {
 
     final response = await _dio.post(
       //TODO: url에 buildingID, tenantID 전달
-      "$backendURL/api/residents/resident-resister/${widget.buildingID}/${widget.tenantID}",
+      "$backendURL/api/residents/tenant/resident-resister/${widget.buildingID}/${widget.tenantID}",
       options: Options(
         headers: {
           'Content-Type': 'application/json',

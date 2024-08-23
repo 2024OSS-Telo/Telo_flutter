@@ -45,6 +45,7 @@ app.*.map.json
 #key
 /android/app/google-services.json
 /ios/Runner/GoogleService-info.plist
+/lib/const/key.dart
 
 #backendURL
 /lib/const/backend_url.dart

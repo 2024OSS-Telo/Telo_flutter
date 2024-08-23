@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:telo/const/colors.dart';
-import 'package:telo/screens/building/resident_resister_page.dart';
+import 'package:telo/screens/building/tenant_resident_resister_page.dart';
 import 'package:telo/screens/building/widgets/count_residents_widget.dart';
 import 'package:telo/screens/building/widgets/notice_widget.dart';
 
@@ -44,7 +44,7 @@ class ResidentListPageState extends State<ResidentListPage> {
       String buildingID, String buildingName) async {
     try {
       final response =
-          await _dio.get('$backendURL/api/residents/resident-list/$buildingID');
+          await _dio.get('$backendURL/api/residents/landlord/resident-list/$buildingID');
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
 
