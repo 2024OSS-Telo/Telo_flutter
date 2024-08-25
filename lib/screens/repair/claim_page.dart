@@ -11,11 +11,10 @@ import '../../const/backend_url.dart';
 import '../../const/colors.dart';
 
 class ClaimPage extends StatefulWidget {
-  const ClaimPage({super.key, required this.requestID, required this.roomID, required this.onUpdate});
+  const ClaimPage({super.key, required this.requestID, required this.roomID,});
 
   final String requestID;
   final String roomID;
-  final VoidCallback onUpdate;
 
   @override
   State<ClaimPage> createState() => _ClaimPageState();
@@ -264,7 +263,6 @@ class _ClaimPageState extends State<ClaimPage> {
                               onPressed: () async {
                                 if (await _submitRequest()) {
                                   Fluttertoast.showToast(msg: "등록되었습니다.");
-                                  widget.onUpdate();
                                   Navigator.pop(context);
                                 }
                               },

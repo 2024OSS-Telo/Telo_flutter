@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -35,8 +36,11 @@ class _ChatPageState extends State<ChatPage> {
     _stompClient.subscribe(
       destination: '/queue/${widget.roomID}',
       callback: (frame) {
-        _messages.add(TextMessage.fromJson(jsonDecode(frame.body!)));
-        _initializeMessages();
+        // print("Raw message body: ${frame.body}");
+        final newMessage = ChatMessage.fromJson(jsonDecode(frame.body!));
+        setState(() {
+          _messages.insert(0, newMessage);
+        });
       },
     );
   }
@@ -91,6 +95,14 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   @override
+  void dispose() {
+    _stompClient.deactivate();
+    _textController.dispose();
+    print('disconnecting...');
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: true,
@@ -110,7 +122,6 @@ class _ChatPageState extends State<ChatPage> {
                 child: Align(
                   alignment: Alignment.topCenter,
                   child: ListView.builder(
-                      shrinkWrap: true,
                     reverse: true,
                       itemCount: _messages.length,
                       itemBuilder: (context, index) {
@@ -125,7 +136,6 @@ class _ChatPageState extends State<ChatPage> {
                             else if (message.messageType ==
                                 MessageType.REPAIR_REQUEST)
                               RequestMessageBubble(
-                                onUpdate: _initializeMessages,
                                 requestMessage: message as RepairRequestMessage,
                                 isMe: message.senderID == widget.memberID,
                                 memberType: _memberType,
@@ -133,7 +143,6 @@ class _ChatPageState extends State<ChatPage> {
                               )
                             else if (message.messageType == MessageType.NOTICE)
                               NoticeMessageBubble(
-                                onUpdate: _initializeMessages,
                                 noticeMessage: message as NoticeMessage,
                                 isMe: message.senderID == widget.memberID,
                                 memberType: _memberType,

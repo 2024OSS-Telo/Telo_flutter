@@ -41,6 +41,7 @@ class MemberService {
     try {
       final response = await _dio.get('/api/members/$memberID');
       if (response.statusCode == 200) {
+        print(response.data);
         return Member.fromJson(response.data as Map<String, dynamic>);
       } else {
         throw Exception("멤버 가져오기 실패: ${response.statusCode}");

@@ -10,7 +10,7 @@ class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
 
   //TODO: 아이디 바꾸기
-  final String memberID = '1';
+  final String memberID = 'TestID';
 
   @override
   State<ChatListPage> createState() => _ChatListPageState();

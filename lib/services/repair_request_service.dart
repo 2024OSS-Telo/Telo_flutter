@@ -12,8 +12,6 @@ class RepairRequestService {
 
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
-        print(memberID);
-        print(data);
         return data.map((json) => RepairRequest.fromJson(json)).toList();
       } else {
         throw Exception("수리 요청 목록 로딩 실패: ${response.statusCode}");

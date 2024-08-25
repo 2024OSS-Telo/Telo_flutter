@@ -82,14 +82,12 @@ class RequestMessageBubble extends StatefulWidget {
       required this.requestMessage,
       required this.isMe,
       required this.memberType,
-      required this.roomID,
-      required this.onUpdate});
+      required this.roomID,});
 
   final RepairRequestMessage requestMessage;
   final bool isMe;
   final String memberType;
   final String roomID;
-  final VoidCallback onUpdate;
 
   @override
   State<RequestMessageBubble> createState() => _RequestMessageBubbleState();
@@ -199,7 +197,7 @@ class _RequestMessageBubbleState extends State<RequestMessageBubble> {
                                 widget.roomID,
                                 widget.requestMessage.repairRequest.requestID,
                                 'approval');
-                            widget.onUpdate();
+                            widget.requestMessage.repairRequest.repairState = RepairState.UNDER_REPAIR;
                           },
                           child: Text("승인",
                               style:
@@ -223,10 +221,10 @@ class _RequestMessageBubbleState extends State<RequestMessageBubble> {
                                 builder: (context) => RequestRefusePage(
                                     repairRequest:
                                         widget.requestMessage.repairRequest,
-                                    roomID: widget.roomID,
-                                    onUpdate: widget.onUpdate),
+                                    roomID: widget.roomID,),
                               ),
                             );
+                            widget.requestMessage.repairRequest.repairState = RepairState.REFUSAL;
                           },
                           child: Text("거절",
                               style:
@@ -256,15 +254,13 @@ class NoticeMessageBubble extends StatelessWidget {
       required this.noticeMessage,
       required this.isMe,
       required this.memberType,
-      required this.roomID,
-      required this.onUpdate});
+      required this.roomID,});
 
   final RepairRequestService _requestService = RepairRequestService();
   final NoticeMessage noticeMessage;
   final bool isMe;
   final String memberType;
   final String roomID;
-  final VoidCallback onUpdate;
   final ChatService _chatService = ChatService();
 
   @override
@@ -343,10 +339,10 @@ class NoticeMessageBubble extends StatelessWidget {
                                     builder: (context) => ClaimPage(
                                         requestID: noticeMessage
                                             .repairRequest.requestID,
-                                        roomID: roomID,
-                                        onUpdate: onUpdate),
+                                        roomID: roomID,),
                                   ),
                                 );
+                                noticeMessage.repairRequest.repairState = RepairState.CLAIM;
                               },
                               child: Text("수리 완료 및 청구하기",
                                   style: TextStyle(
@@ -419,8 +415,8 @@ class NoticeMessageBubble extends StatelessWidget {
                                             roomID,
                                             noticeMessage
                                                 .repairRequest.requestID,
-                                            'approval');
-                                        onUpdate();
+                                            'complete');
+                                        noticeMessage.repairRequest.repairState = RepairState.COMPLETE;
                                       },
                                       child: Text("송금 완료",
                                           style: TextStyle(
@@ -477,6 +473,7 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
 
   Future<void> _initializeInfo() async {
     try {
+      print(widget.memberID);
       final Member other;
       if (widget.chatRoom.tenantID == widget.memberID) {
         other = await memberService.getMember(widget.chatRoom.landlordID);

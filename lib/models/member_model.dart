@@ -20,13 +20,13 @@ class Member {
 
   factory Member.fromJson(Map<String, dynamic> json) {
     return Member(
-      memberID: json['memberID'],
-      memberRealName: json['memberRealName'],
-      memberNickName: json['memberNickName'],
-      phoneNumber: json['phoneNumber'],
-      profile: json['profile'],
-      provider: json['provider'],
-      memberType: json['memberType'],
+      memberID: json['memberID'] ?? '',
+      memberRealName: json['memberRealName'] ?? '',
+      memberNickName: json['memberNickName'] ?? '',
+      phoneNumber: json['phoneNumber'] ?? '',
+      profile: json['profile'] ?? '',
+      provider: json['provider'] ?? '',
+      memberType: json['memberType'] ?? '',
     );
   }
 

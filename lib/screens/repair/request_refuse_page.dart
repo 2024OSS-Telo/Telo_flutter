@@ -11,11 +11,10 @@ import '../../models/repair_request_model.dart';
 
 class RequestRefusePage extends StatefulWidget {
   const RequestRefusePage(
-      {super.key, required this.repairRequest, required this.roomID, required this.onUpdate});
+      {super.key, required this.repairRequest, required this.roomID});
 
   final RepairRequest repairRequest;
   final String roomID;
-  final VoidCallback onUpdate;
 
   @override
   State<RequestRefusePage> createState() => _RequestRefusePageState();
@@ -126,7 +125,6 @@ class _RequestRefusePageState extends State<RequestRefusePage> {
                           onPressed: () async {
                             if (await _submitRequest()) {
                               Fluttertoast.showToast(msg: "등록되었습니다.");
-                              widget.onUpdate();
                               Navigator.pop(context);
                             }
                           },
