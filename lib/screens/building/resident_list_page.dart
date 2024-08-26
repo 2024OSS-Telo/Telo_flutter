@@ -196,7 +196,7 @@ class ResidentListPageState extends State<ResidentListPage> {
                       '${resident.apartmentNumber}     ${resident.residentName}',
                       style: TextStyle(
                         fontSize: 13.0,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     SizedBox(height: 5.0),

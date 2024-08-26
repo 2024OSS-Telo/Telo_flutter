@@ -190,11 +190,23 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
                   TextFieldSection(
                     label: "도로명 주소",
                     hintText: "도로명 주소",
-                    maxLength: 30,
+                    maxLength: 50,
                     counterText: "",
                     validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
                     onSaved: (value) => _addressValue = value!,
                   ),
+                  SizedBox(height: 15),
+                  Row(
+                    children: [
+                      Icon(Icons.warning_amber_rounded, color: GRAY_COLOR),
+                      SizedBox(width: 8),
+                      Text(
+                        '아파트의 경우 동 번호까지 입력해주세요!',
+                        style: TextStyle(fontSize: 15, color: GRAY_COLOR),
+                      ),
+                    ],
+                  ),
+
                   SizedBox(height: 30),
                   TextFieldSection(
                     label: "총 세대수",
