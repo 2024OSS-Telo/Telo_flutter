@@ -19,7 +19,7 @@ class ResidentListPage extends StatefulWidget {
 }
 
 class ResidentListPageState extends State<ResidentListPage> {
-  final Dio _dio = Dio(BaseOptions(baseUrl: '$backendURL/api/residents'));
+  final Dio _dio = Dio();
   late Future<List<Resident>> _residentsFuture;
   late List<Resident> _residents;
   List<Resident> _filteredResidents = [];
@@ -196,7 +196,7 @@ class ResidentListPageState extends State<ResidentListPage> {
                       '${resident.apartmentNumber}     ${resident.residentName}',
                       style: TextStyle(
                         fontSize: 13.0,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     SizedBox(height: 5.0),

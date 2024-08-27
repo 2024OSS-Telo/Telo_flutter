@@ -251,11 +251,12 @@ class RentDetails extends StatelessWidget {
               }
             },
           ),
-          SizedBox(height: 20),
-          DateNumberSection(
+          SizedBox(height: 30),
+          MonthlyDateSection(
             label: "월세 납부일",
             onSaved: onSavedPaymentDate,
           ),
+          SizedBox(height: 30),
         ],
       ],
     );

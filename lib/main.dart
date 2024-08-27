@@ -2,17 +2,20 @@ import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:telo/const/colors.dart';
 import 'package:telo/screens/building/building_list_page.dart';
 import 'package:telo/screens/building/resident_list_page.dart';
 import 'package:telo/screens/chat/chat_list_page.dart';
 import 'package:telo/screens/home_page.dart';
+import 'package:telo/screens/mypage/mypage_page.dart';
 import 'package:telo/screens/repair/repair_list_page.dart';
 import 'package:telo/services/member_service.dart';
 import 'const/backend_url.dart';
@@ -153,8 +156,20 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _initialize() async {
-    await _checkLoginStatus();
-    await _initializeMemberType();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? savedStatus = prefs.getBool('isTenantOrLandlord');
+
+    if (savedStatus != null && savedStatus) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MainPage(onSignOut: signOut),
+        ),
+      );
+    } else {
+      await _checkLoginStatus();
+      await _initializeMemberType();
+    }
   }
 
   Future<void> _checkLoginStatus() async {
@@ -176,6 +191,23 @@ class _MyAppState extends State<MyApp> {
     print("Initializing member type for platform: $_loginPlatform");
     if (_loginPlatform != LoginPlatform.none) {
       await checkMemberType();
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      if (_isTenantOrLandlord) {
+        await prefs.setBool('isTenantOrLandlord', true);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainPage(onSignOut: signOut),
+          ),
+        );
+      } else {
+        await prefs.setBool('isTenantOrLandlord', false);
+        setState(() {
+          _isLoading = false;
+        });
+      }
     } else {
       setState(() {
         _isLoading = false;
@@ -183,13 +215,14 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  Future<void> signUpUser(String memberID, String memberName, String profile, String provider) async {
+  Future<void> signUpUser(String memberID, String memberNickName,
+      String profile, String provider) async {
     String? token = await FirebaseMessaging.instance.getToken();
     final response = await dio.post(
       "$backendURL/api/members/signup",
       data: {
         'memberID': memberID,
-        'memberNickName': memberName,
+        'memberNickName': memberNickName,
         'profile': profile,
         'provider': provider,
         'memberType': 'user',
@@ -262,11 +295,11 @@ class _MyAppState extends State<MyApp> {
 
     if (googleUser != null) {
       final String memberID = googleUser.id;
-      final String memberName = googleUser.displayName ?? '';
+      final String memberNickName = googleUser.displayName ?? '';
       final String profile = googleUser.photoUrl ?? '';
       const String provider = 'google';
 
-      print('name = ${googleUser.displayName}');
+      print('memberNickName = ${googleUser.displayName}');
       print('email = ${googleUser.email}');
       print('id = ${googleUser.id}');
 
@@ -274,7 +307,7 @@ class _MyAppState extends State<MyApp> {
         _loginPlatform = LoginPlatform.google;
       });
 
-      await signUpUser(memberID, memberName, profile, provider);
+      await signUpUser(memberID, memberNickName, profile, provider);
       await _initializeMemberType();
     }
   }
@@ -328,14 +361,15 @@ class _MyAppState extends State<MyApp> {
       try {
         user = await UserApi.instance.me();
         String memberID = user.id.toString();
-        String memberName = user.kakaoAccount?.profile?.nickname ?? '';
+        String memberNickName = user.kakaoAccount?.profile?.nickname ?? '';
         String profile = user.kakaoAccount?.profile?.profileImageUrl ?? '';
         String provider = 'kakao';
 
         print('로그인 성공 후 user 정보: $user');
-        print( '서버 요청 본문: memberID=$memberID, memberName=$memberName, profile=$profile, provider=$provider');
+        print(
+            '서버 요청 본문: memberID=$memberID, memberNickName=$memberNickName, profile=$profile, provider=$provider');
 
-        await signUpUser(memberID, memberName, profile, provider);
+        await signUpUser(memberID, memberNickName, profile, provider);
         await _initializeMemberType();
       } catch (error) {
         print('사용자 정보 가져오기 실패: $error');
@@ -367,7 +401,7 @@ class _MyAppState extends State<MyApp> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => MyApp()),
-          (Route<dynamic> route) => false,
+      (Route<dynamic> route) => false,
     );
   }
 
@@ -506,7 +540,8 @@ class AfterLogin extends StatelessWidget {
   final VoidCallback onSignOut;
   final Future<void> Function(String) updateService;
 
-  const AfterLogin({super.key, required this.onSignOut, required this.updateService});
+  const AfterLogin(
+      {super.key, required this.onSignOut, required this.updateService});
 
   @override
   Widget build(BuildContext context) {
@@ -609,7 +644,7 @@ class _MainPageState extends State<MainPage> {
       ChatListPage(),
       Placeholder(),
       RepairListPage(),
-      RepairListPage(),
+      MypagePage(),
     ];
   }
 
@@ -633,13 +668,15 @@ class _MainPageState extends State<MainPage> {
     }
 
     try {
-      final response = await _dio.get('$backendURL/api/members/$memberID/memberType');
+      final response =
+          await _dio.get('$backendURL/api/members/$memberID/memberType');
       if (response.statusCode == 200) {
         setState(() {
           _memberType = response.data;
         });
       } else {
-        print('Failed to load member type, status code: ${response.statusCode}');
+        print(
+            'Failed to load member type, status code: ${response.statusCode}');
       }
     } catch (error) {
       print('Error loading member type: $error');
@@ -652,46 +689,63 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  Future<bool> _onWillPop() async {
-    SystemNavigator.pop();
-    return Future.value(false);
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: _selectedIndex == 2
-            ? (_memberType == 'landlord'
-            ? LandlordBuildingListPage()
-            : TenantBuildingListPage(buildingID: 'aaa', buildingName: 'aaa',))
-            : _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
-              ),
-              label: '홈'),
-          BottomNavigationBarItem(
-              icon: Icon(
-                Icons.chat_bubble,
-              ),
-              label: '채팅'),
-          BottomNavigationBarItem(icon: Icon(Icons.apartment), label: '건물'),
-          BottomNavigationBarItem(icon: Icon(Icons.build), label: '수리요청'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '내정보')
-        ],
-        backgroundColor: Colors.white,
-        selectedItemColor: DARK_GRAY_COLOR,
-        unselectedItemColor: GRAY_COLOR,
-        type: BottomNavigationBarType.fixed,
-        selectedFontSize: 10,
-        unselectedFontSize: 10,
-        onTap: _onItemTapped,
-      ),
-    );
+    return PopScope(
+        canPop: false,
+        onPopInvoked: (didPop) async {
+          final result = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('앱을 종료하시겠습니까?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text('아니요'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    SystemNavigator.pop();
+                  },
+                  child: Text('예'),
+                ),
+              ],
+            ),
+          );
+        },
+        child: Scaffold(
+          body: SafeArea(
+            child: _selectedIndex == 2
+                ? (_memberType == 'landlord'
+                    ? LandlordBuildingListPage()
+                    : TenantBuildingListPage())
+                : _widgetOptions.elementAt(_selectedIndex),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _selectedIndex,
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.home,
+                  ),
+                  label: '홈'),
+              BottomNavigationBarItem(
+                  icon: Icon(
+                    Icons.chat_bubble,
+                  ),
+                  label: '채팅'),
+              BottomNavigationBarItem(icon: Icon(Icons.apartment), label: '건물'),
+              BottomNavigationBarItem(icon: Icon(Icons.build), label: '수리요청'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: '내정보')
+            ],
+            backgroundColor: Colors.white,
+            selectedItemColor: DARK_GRAY_COLOR,
+            unselectedItemColor: GRAY_COLOR,
+            type: BottomNavigationBarType.fixed,
+            selectedFontSize: 10,
+            unselectedFontSize: 10,
+            onTap: _onItemTapped,
+          ),
+        ));
   }
 }

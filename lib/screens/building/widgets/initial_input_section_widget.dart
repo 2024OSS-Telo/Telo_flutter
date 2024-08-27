@@ -97,7 +97,7 @@ class InitialPhoneNumberSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '임대인 전화번호',
+          '전화번호',
           style: TextStyle(fontSize: 15),
         ),
         SizedBox(height: 10),

@@ -75,3 +75,74 @@ class _DateNumberFormatter extends TextInputFormatter {
     );
   }
 }
+
+class MonthlyDateSection extends StatelessWidget {
+  final FormFieldSetter<String>? onSaved;
+  final String label;
+
+  MonthlyDateSection({super.key, this.onSaved, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 15),
+        ),
+        SizedBox(height: 10),
+        TextFormField(
+          decoration: InputDecoration(
+            hintText: '12-25',
+            hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
+            counterText: "",
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: LIGHT_GRAY_COLOR),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: LIGHT_GRAY_COLOR),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+          ),
+          keyboardType: TextInputType.datetime,
+          maxLength: 5,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            _MonthlyDateFormatter(),
+          ],
+          onSaved: (value) => onSaved?.call(_formatNumber(value ?? '')),
+        ),
+        SizedBox(height: 10),
+      ],
+    );
+  }
+
+  String _formatNumber(String text) {
+    final digitsOnly = text.replaceAll(RegExp(r'\D'), '');
+    if (digitsOnly.length <= 2) return digitsOnly;
+    return '${digitsOnly.substring(0, 2)}-${digitsOnly.substring(2)}';
+  }
+}
+
+class _MonthlyDateFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    final digitsOnly = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    String formattedText;
+    if (digitsOnly.length <= 2) {
+      formattedText = digitsOnly;
+    } else {
+      formattedText = '${digitsOnly.substring(0, 2)}-${digitsOnly.substring(2)}';
+    }
+
+    final newSelectionIndex = formattedText.length;
+
+    return newValue.copyWith(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: newSelectionIndex),
+    );
+  }
+}
