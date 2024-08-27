@@ -137,19 +137,12 @@ class _RequestMessageBubbleState extends State<RequestMessageBubble> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
-                    //TODO: 테스트 이미지 삭제
-                    child: Image.asset(
-                      'assets/image/buildingIMGtest.png',
+                    child: Image.network(
+                      widget.requestMessage.repairRequest.imageURL.first,
                       width: 60,
                       height: 60,
                       fit: BoxFit.cover,
                     ),
-                    // child: Image.network(
-                    //   widget.requestMessage.repairRequest.imageURL.first,
-                    //   width: 40,
-                    //   height: 40,
-                    //   fit: BoxFit.cover,
-                    // ),
                   ),
                   Text(
                     "제목: ${widget.requestMessage.repairRequest.requestTitle}",
@@ -292,19 +285,12 @@ class NoticeMessageBubble extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
                 child:
-                    //TODO: 테스트 이미지 삭제
-                    Image.asset(
-                  'assets/image/buildingIMGtest.png',
+                Image.network(
+                  noticeMessage.repairRequest.imageURL.first,
                   width: 60,
                   height: 60,
                   fit: BoxFit.cover,
                 ),
-                // Image.network(
-                //   noticeMessage.repairRequest.imageURL.first,
-                //   width: 40,
-                //   height: 40,
-                //   fit: BoxFit.cover,
-                // ),
               ),
               noticeType == 'approval'
                   ? Column(
@@ -528,23 +514,14 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
             margin: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
             child: Row(
               children: [
-                //TODO: 테스트 이미지 삭제
                 ClipOval(
-                  child: Image.asset(
-                    'assets/image/buildingIMGtest.png',
+                  child: Image.network(
+                    _other!.profile,
                     width: 60,
                     height: 60,
                     fit: BoxFit.cover,
                   ),
                 ),
-                // ClipOval(
-                //   child: Image.network(
-                //     _other!.profile,
-                //     width: 50,
-                //     height: 50,
-                //     fit: BoxFit.cover,
-                //   ),
-                // ),
                 SizedBox(
                   width: 15,
                 ),

@@ -76,19 +76,12 @@ class _RepairRequestCardState extends State<RepairRequestCard> {
                   ),
                 ),
                 SizedBox(width: 20,),
-                //TODO: 테스트 이미지 삭제
-                Image.asset(
-                  'assets/image/buildingIMGtest.png',
+                Image.network(
+                  widget.repairRequest.imageURL.first,
                   width: 70,
                   height: 70,
                   fit: BoxFit.cover,
                 ),
-                // Image.network(
-                //   widget.repairRequest.imageURL.first,
-                //   width: 70,
-                //   height: 70,
-                //   fit: BoxFit.cover,
-                // ),
               ],
             ),
             SizedBox(

@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:telo/const/colors.dart';
 import 'package:telo/screens/building/widgets/form_section_widget.dart';
 import 'package:telo/screens/building/widgets/initial_input_section_widget.dart';
+import 'package:telo/services/image_service.dart';
 
 import '../../const/backend_url.dart';
 import '../../services/member_service.dart';
@@ -19,6 +20,7 @@ class BuildingResisterPage extends StatefulWidget {
 
 class _BuildingResisterPage extends State<BuildingResisterPage> {
   MemberService memberService = MemberService();
+  ImageService imageService = ImageService();
 
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
@@ -81,7 +83,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
 
     List<String> imageURLs = [];
     for (XFile image in _pickedImages) {
-      final imageURL = await uploadImage(image);
+      final imageURL = await imageService.uploadImage(image);
       imageURLs.add(imageURL);
     }
 
@@ -111,24 +113,6 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
       return false;
     }
     return true;
-  }
-
-  Future<String> uploadImage(XFile image) async {
-    String fileName = image.path.split('/').last;
-    FormData formData = FormData.fromMap({
-      "file": await MultipartFile.fromFile(image.path, filename: fileName),
-    });
-
-    final response = await _dio.post(
-      "$backendURL/upload-image",
-      data: formData,
-    );
-
-    if (response.statusCode == 200) {
-      return response.data['imageURL'];
-    } else {
-      throw Exception('이미지 업로드에 실패했습니다.');
-    }
   }
 
   @override

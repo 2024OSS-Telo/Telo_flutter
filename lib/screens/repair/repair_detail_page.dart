@@ -37,18 +37,11 @@ class RepairDetailPage extends StatelessWidget {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child:
-                              //TODO: 테스트 이미지 삭제
-                              Image.asset(
-                            'assets/image/buildingIMGtest.png',
-                            fit: BoxFit.cover,
-                                width: 200,
+                          Image.network(
+                            repairRequest.imageURL[index],
+                            width: 200,
+                            fit: BoxFit.cover
                           ),
-                          // Image.network(
-                          //   repairRequest.imageURL[index],
-                          //   width: double.infinity,
-                          //   height: 300,
-                          //   fit: BoxFit.cover
-                          // ),
                         );
                       }),
                 ),
@@ -144,19 +137,12 @@ class RepairDetailPage extends StatelessWidget {
                               return Padding(
                                 padding: const EdgeInsets.only(right: 8.0),
                                 child:
-                                    //TODO: 테스트 이미지 삭제
-                                    Image.asset(
-                                  'assets/image/buildingIMGtest.png',
+                                Image.network(
+                                  repairRequest.receiptImageURL[index],
                                   width: 200,
                                   height: 200,
                                   fit: BoxFit.cover,
                                 ),
-                                // Image.network(
-                                //   repairRequest.receiptImageURL[index],
-                                //   width: 200,
-                                //   height: 200,
-                                //   fit: BoxFit.cover,
-                                // ),
                               );
                             },
                           ),

@@ -164,19 +164,12 @@ class _RequestRefusePageState extends State<RequestRefusePage> {
                 return Padding(
                   padding: const EdgeInsets.only(right: 8.0),
                   child:
-                  //TODO: 테스트 이미지 삭제
-                  Image.asset(
-                    'assets/image/buildingIMGtest.png',
-                    fit: BoxFit.cover,
+                  Image.network(
+                    widget.repairRequest.imageURL[index],
                     width: 70,
                     height: 70,
+                    fit: BoxFit.cover,
                   ),
-                  // Image.network(
-                  //   widget.repairRequest.imageURL[index],
-                  //   width: 70,
-                  //   height: 70,
-                  //   fit: BoxFit.cover,
-                  // ),
                 );
               },
             ),

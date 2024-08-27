@@ -96,18 +96,11 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                         return Padding(
                           padding: const EdgeInsets.only(right: 8.0),
                           child:
-                          //TODO: 테스트 이미지 삭제
-                          Image.asset(
-                            'assets/image/buildingIMGtest.png',
+                          Image.network(
+                            buildingWithResidents.buildingImageURL![index],
+                             width: 200,
                             fit: BoxFit.cover,
-                            width: 200,
                           ),
-                          // Image.network(
-                          //   repairRequest.imageURL[index],
-                          //   width: double.infinity,
-                          //   height: 300,
-                          //   fit: BoxFit.cover
-                          // ),
                         );
                       },
                     ),
@@ -289,8 +282,9 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.w600),
                             ),
+                            SizedBox(height: 10,),
                             SizedBox(
-                              height: 200,
+                              height: 300,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
                                 itemCount:
@@ -299,19 +293,11 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                                   return Padding(
                                     padding: const EdgeInsets.only(right: 8.0),
                                     child:
-                                    //TODO: 테스트 이미지 삭제
-                                    Image.asset(
-                                      'assets/image/buildingIMGtest.png',
-                                      width: 100,
-                                      height: 100,
+                                    Image.network(
+                                      buildingWithResidents.residentImageURL![index],
+                                       width: 200,
                                       fit: BoxFit.cover,
                                     ),
-                                    // Image.network(
-                                    //   repairRequest.receiptImageURL[index],
-                                    //   width: 200,
-                                    //   height: 200,
-                                    //   fit: BoxFit.cover,
-                                    // ),
                                   );
                                 },
                               ),

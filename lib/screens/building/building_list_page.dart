@@ -214,8 +214,8 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              child: Image.asset(
-                'assets/image/buildingIMGtest.png',
+              child: Image.network(
+                building.imageURL.first,
                 width: 100.0,
                 height: 120.0,
                 fit: BoxFit.cover,
@@ -503,8 +503,8 @@ class _TenantBuildingListPageState extends State<TenantBuildingListPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
-                  child: Image.asset(
-                    'assets/image/buildingIMGtest.png',
+                  child: Image.network(
+                    buildingWithResidents.buildingImageURL!.first,
                     width: 120.0,
                     height: 150.0,
                     fit: BoxFit.cover,

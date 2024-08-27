@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:telo/const/colors.dart';
+import 'package:telo/services/image_service.dart';
 import 'package:telo/services/member_service.dart';
 import 'package:telo/services/resident_service.dart';
 
@@ -24,6 +25,7 @@ class RepairRequestPage extends StatefulWidget {
 
 class _RepairRequestPageState extends State<RepairRequestPage> {
   final MemberService _memberService = MemberService();
+  final ImageService _imageService = ImageService();
 
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
@@ -51,7 +53,7 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
     _formKey.currentState!.save();
     List<String> imageURLs = [];
     for (XFile image in _pickedImages) {
-      final imageURL = await uploadImage(image);
+      final imageURL = await _imageService.uploadImage(image);
       imageURLs.add(imageURL);
     }
 
@@ -78,24 +80,6 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
       return false;
     }
     return true;
-  }
-
-  Future<String> uploadImage(XFile image) async {
-    String fileName = image.path.split('/').last;
-    FormData formData = FormData.fromMap({
-      "file": await MultipartFile.fromFile(image.path, filename: fileName),
-    });
-
-    final response = await _dio.post(
-      backendURL + "/upload-image",
-      data: formData,
-    );
-
-    if (response.statusCode == 200) {
-      return response.data['imageURL'];
-    } else {
-      throw Exception('이미지 업로드에 실패했습니다.');
-    }
   }
 
   @override

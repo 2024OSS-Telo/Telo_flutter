@@ -11,6 +11,7 @@ import 'package:telo/screens/building/widgets/initial_input_section_widget.dart'
 import 'package:telo/screens/building/widgets/resident_list_form_widget.dart';
 
 import '../../const/backend_url.dart';
+import '../../services/image_service.dart';
 import '../../services/member_service.dart';
 
 import 'package:flutter/material.dart';
@@ -262,6 +263,8 @@ class ResidentRegisterPage extends StatefulWidget {
 
 class _ResidentRegisterPage extends State<ResidentRegisterPage> {
   final MemberService memberService = MemberService();
+  final ImageService imageService = ImageService();
+
   final TextEditingController _phoneController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
@@ -333,7 +336,7 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
 
     List<String> imageURLs = [];
     for (XFile image in _pickedImages) {
-      final imageURL = await uploadImage(image);
+      final imageURL = await imageService.uploadImage(image);
       imageURLs.add(imageURL);
     }
 
@@ -346,7 +349,7 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
       'monthlyRentPaymentDate': _monthlyRentPaymentDate,
       'deposit': _deposit,
       'contractExpirationDate': _contractExpirationDate,
-      'imageURL': imageURLs,
+      'contractImageURL': imageURLs,
     };
 
     final response = await _dio.post(
@@ -365,24 +368,6 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
       return false;
     }
     return true;
-  }
-
-  Future<String> uploadImage(XFile image) async {
-    String fileName = image.path.split('/').last;
-    FormData formData = FormData.fromMap({
-      "file": await MultipartFile.fromFile(image.path, filename: fileName),
-    });
-
-    final response = await _dio.post(
-      "$backendURL/upload-image",
-      data: formData,
-    );
-
-    if (response.statusCode == 200) {
-      return response.data['imageURL'];
-    } else {
-      throw Exception('이미지 업로드에 실패했습니다.');
-    }
   }
 
   @override
