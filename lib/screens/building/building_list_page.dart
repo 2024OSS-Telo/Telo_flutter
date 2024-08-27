@@ -53,7 +53,7 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
   Future<List<Building>> _fetchBuildings(String landlordID) async {
     try {
       final response =
-      await _dio.get('$backendURL/api/buildings/member/$landlordID');
+      await _dio.get('$backendURL/api/buildings/landlord/building-list/$landlordID');
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
         print('DATA ${response.data}');

@@ -36,7 +36,6 @@ class _ChatPageState extends State<ChatPage> {
     _stompClient.subscribe(
       destination: '/queue/${widget.roomID}',
       callback: (frame) {
-        // print("Raw message body: ${frame.body}");
         final newMessage = ChatMessage.fromJson(jsonDecode(frame.body!));
         setState(() {
           _messages.insert(0, newMessage);
@@ -113,7 +112,7 @@ class _ChatPageState extends State<ChatPage> {
             leading: IconButton(
               icon: Icon(Icons.arrow_back_ios),
               onPressed: () {
-                Navigator.pop(context); // 뒤로가기
+                Navigator.pop(context, _messages.first); // 뒤로가기
               },
             )),
         body: Column(
@@ -122,6 +121,7 @@ class _ChatPageState extends State<ChatPage> {
                 child: Align(
                   alignment: Alignment.topCenter,
                   child: ListView.builder(
+                    shrinkWrap: true,
                     reverse: true,
                       itemCount: _messages.length,
                       itemBuilder: (context, index) {

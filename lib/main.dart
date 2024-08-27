@@ -1,5 +1,10 @@
+import 'dart:io';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -17,8 +22,105 @@ import 'package:dio/dio.dart';
 import 'const/login_platform.dart';
 import 'package:dio/dio.dart';
 
-void main() {
+import 'firebase_options.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+
+  if (message.notification != null) {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'message_channel', // 알림 채널 ID
+      'Messages', // 알림 채널 이름
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: true,
+      playSound: true,
+      enableVibration: true,
+    );
+
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0, // 알림 ID
+      message.notification?.title, // 알림 제목
+      message.notification?.body, // 알림 본문
+      platformChannelSpecifics,
+      payload: message.data.isNotEmpty ? message.data['data'] : null,
+    );
+  }
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+
+  const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher'); // 기본 아이콘
+
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  // FlutterLocalNotificationsPlugin 인스턴스 초기화
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+  );
+
+  // 알림 채널 설정
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'message_channel',
+    'Messages',
+    importance: Importance.max,
+  );
+
+  final AndroidFlutterLocalNotificationsPlugin? androidPlugin = flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>();
+  if (androidPlugin != null) {
+    await androidPlugin.createNotificationChannel(channel);
+  }
+
+  const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+    'message_channel',
+    'Messages',
+    importance: Importance.max,
+    priority: Priority.high,
+    showWhen: true,
+    playSound: true,
+    enableVibration: true,
+  );
+
+  // 포그라운드에서 알림 수신 처리
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+    print('@@@@@@@@@@Received a message in the foreground: ${message.notification?.body}');
+    if (message.notification != null) {
+      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidPlatformChannelSpecifics,
+      );
+
+      await flutterLocalNotificationsPlugin.show(
+        message.notification.hashCode,
+        message.notification?.title,
+        message.notification?.body,
+        platformChannelSpecifics,
+        payload: message.data.isNotEmpty ? message.data['data'] : null,
+      );
+    }
+  });
+
+  //TODO: 테스트를 위한 토큰 리턴 (삭제하기)
+  String? token = await FirebaseMessaging.instance.getToken();
+  print("@@@@@@@@@token: $token");
+
   KakaoSdk.init(nativeAppKey: kakaoNativeAppKey);
+
   void signOut(){}
   runApp(
       MaterialApp(
@@ -82,14 +184,16 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> signUpUser(String memberID, String memberName, String profile, String provider) async {
+    String? token = await FirebaseMessaging.instance.getToken();
     final response = await dio.post(
       "$backendURL/api/members/signup",
       data: {
         'memberID': memberID,
-        'memberName': memberName,
+        'memberNickName': memberName,
         'profile': profile,
         'provider': provider,
-        'memberType': 'user'
+        'memberType': 'user',
+        'token' : token,
       },
       options: Options(
         headers: {

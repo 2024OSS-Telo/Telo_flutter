@@ -506,8 +506,8 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
     }
     return InkWell(
         splashColor: Colors.transparent,
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          final recentMessage = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => ChatPage(
@@ -516,6 +516,11 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
               ),
             ),
           );
+          if (recentMessage != null) {
+            setState(() {
+              _recentMessage = recentMessage as ChatMessage?;
+            });
+          }
         },
         child: Container(
             width: double.infinity,
