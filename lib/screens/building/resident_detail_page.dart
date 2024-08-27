@@ -5,6 +5,7 @@ import '../../const/backend_url.dart';
 import '../../const/colors.dart';
 import '../../models/building_with_residents_model.dart';
 import '../../models/member_model.dart';
+import '../../services/member_service.dart';
 
 class ResidentDetailPage extends StatefulWidget {
   final BuildingWithResidents buildingWithResidents;
@@ -17,6 +18,9 @@ class ResidentDetailPage extends StatefulWidget {
 }
 
 class _ResidentDetailPageState extends State<ResidentDetailPage> {
+  MemberService memberService = MemberService();
+  late String memberID;
+
   final Dio _dio = Dio();
 
   String landlordName = '';
@@ -26,11 +30,22 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
   void initState() {
     super.initState();
     _fetchLandlordDetails();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    try {
+      memberID = await memberService.findMemberID();
+      setState(() {
+      });
+    } catch (error) {
+      print('멤버아이디 에러: $error');
+    }
   }
 
   Future<void> _fetchLandlordDetails() async {
     try {
-      final response = await _dio.get('$backendURL/api/members/landlordID');
+      final response = await _dio.get('$backendURL/api/members/$memberID');
       if (response.statusCode == 200) {
         final data = response.data;
         setState(() {

@@ -127,8 +127,9 @@ void main() async {
   void signOut(){}
   runApp(
       MaterialApp(
-          home: MainPage(onSignOut: signOut)
-          //home: MyApp(),
+        debugShowCheckedModeBanner: false,
+          //home: MainPage(onSignOut: signOut)
+          home: MyApp(),
 
       ));
 }
@@ -441,96 +442,99 @@ class PageSlide extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
     double indicatorPosition = screenHeight * 0.6;
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          PageView(
-            controller: _pageController,
-            children: [
-              Container(
-                color: MAIN_COLOR,
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(20, 90, 0, 0),
-                  child: Text(
-                    '임대인과\n임차인을 잇다\n\u{1f3e0}\nTELO',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 35,
-                      letterSpacing: 5,
-                      height: 1.8,
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                color: MAIN_COLOR,
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(20, 90, 0, 0),
-                  child: Text(
-                    '현명한\n집 관리 플랜\nTELO로부터',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 35,
-                      letterSpacing: 5,
-                      height: 1.8,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Positioned(
-            top: indicatorPosition,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: SmoothPageIndicator(
-                controller: _pageController,
-                count: 2,
-                effect: SwapEffect(
-                  activeDotColor: Colors.black,
-                  dotColor: Colors.black38,
-                  spacing: 8.0,
-                  dotWidth: 13.0,
-                  dotHeight: 13.0,
-                ),
-              ),
-            ),
-          ),
-          Container(
-            padding: EdgeInsetsDirectional.only(bottom: 50),
-            alignment: Alignment.bottomCenter,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Stack(
+          children: [
+            PageView(
+              controller: _pageController,
               children: [
                 Container(
-                  margin: EdgeInsets.all(7),
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Image.asset(
-                      'assets/image/android_neutral_sq_SI@1x.png',
-                      width: 200,
-                      fit: BoxFit.contain,
+                  color: MAIN_COLOR,
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(20, 90, 0, 0),
+                    child: Text(
+                      '임대인과\n임차인을 잇다\n\u{1f3e0}\nTELO',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 35,
+                        letterSpacing: 5,
+                        height: 1.8,
+                      ),
                     ),
-                    onPressed: onGoogleSignIn,
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.all(7),
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: Image.asset(
-                      'assets/image/kakao_login_medium_narrow.png',
-                      width: 200,
-                      fit: BoxFit.contain,
+                  color: MAIN_COLOR,
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(20, 90, 0, 0),
+                    child: Text(
+                      '현명한\n집 관리 플랜\nTELO로부터',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 35,
+                        letterSpacing: 5,
+                        height: 1.8,
+                      ),
                     ),
-                    onPressed: onKakaoSignIn,
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+            Positioned(
+              top: indicatorPosition,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: SmoothPageIndicator(
+                  controller: _pageController,
+                  count: 2,
+                  effect: SwapEffect(
+                    activeDotColor: Colors.black,
+                    dotColor: Colors.black38,
+                    spacing: 8.0,
+                    dotWidth: 13.0,
+                    dotHeight: 13.0,
+                  ),
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsetsDirectional.only(bottom: 50),
+              alignment: Alignment.bottomCenter,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Container(
+                    margin: EdgeInsets.all(7),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Image.asset(
+                        'assets/image/android_neutral_sq_SI@1x.png',
+                        width: 200,
+                        fit: BoxFit.contain,
+                      ),
+                      onPressed: onGoogleSignIn,
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.all(7),
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Image.asset(
+                        'assets/image/kakao_login_medium_narrow.png',
+                        width: 200,
+                        fit: BoxFit.contain,
+                      ),
+                      onPressed: onKakaoSignIn,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -545,73 +549,76 @@ class AfterLogin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: MAIN_COLOR,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '반가워요!\n누구신가요?\n',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 35,
-                letterSpacing: 5,
-                height: 1.8,
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: MAIN_COLOR,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '반가워요!\n누구신가요?\n',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 35,
+                  letterSpacing: 5,
+                  height: 1.8,
+                ),
               ),
-            ),
-            SizedBox(height: 30),
-            SizedBox(
-              width: 350,
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Color(0xff2C2C2C),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(7),
+              SizedBox(height: 30),
+              SizedBox(
+                width: 350,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Color(0xff2C2C2C),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                  ),
+                  onPressed: () async {
+                    await updateService('landlord');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MainPage(onSignOut: onSignOut),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    '집주인입니다',
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
-                onPressed: () async {
-                  await updateService('landlord');
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MainPage(onSignOut: onSignOut),
-                    ),
-                  );
-                },
-                child: Text(
-                  '집주인입니다',
-                  style: TextStyle(color: Colors.white),
-                ),
               ),
-            ),
-            SizedBox(height: 20),
-            SizedBox(
-              width: 350,
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(7),
+              SizedBox(height: 20),
+              SizedBox(
+                width: 350,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(7),
+                    ),
+                  ),
+                  onPressed: () async {
+                    await updateService('tenant');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MainPage(onSignOut: onSignOut),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    '세입자입니다',
+                    style: TextStyle(color: Color(0xff2C2C2C)),
                   ),
                 ),
-                onPressed: () async {
-                  await updateService('tenant');
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MainPage(onSignOut: onSignOut),
-                    ),
-                  );
-                },
-                child: Text(
-                  '세입자입니다',
-                  style: TextStyle(color: Color(0xff2C2C2C)),
-                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

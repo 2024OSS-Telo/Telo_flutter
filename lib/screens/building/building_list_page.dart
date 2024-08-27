@@ -167,6 +167,7 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
           final result = await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => BuildingResisterPage()),
+
           );
           if (result == true) {
             setState(() {
@@ -345,11 +346,11 @@ class _TenantBuildingListPageState extends State<TenantBuildingListPage> {
         _filteredBuildings = _buildings;
         return _buildings;
       } else {
-        print('힝');
+        print('tenant building list error');
         return [];
       }
     } catch (e, stackTrace) {
-      print('힝2: $e');
+      print('tenant building list error : $e');
       print('스택: $stackTrace');
       return [];
     }
@@ -456,6 +457,7 @@ class _TenantBuildingListPageState extends State<TenantBuildingListPage> {
           if (result == true) {
             setState(() {
               _buildingsFuture = _fetchBuildings(memberID);
+              _initializeData();
             });
           }
         },
