@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:telo/services/chat_service.dart';
 import 'package:telo/widgets/chat_widget.dart';
 
+import '../../const/colors.dart';
 import '../../models/chat_model.dart';
 import 'chat_page.dart';
 
@@ -44,12 +45,17 @@ class _ChatListPageState extends State<ChatListPage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         title: Text("채팅"),
+        automaticallyImplyLeading: false,
       ),
       body: _chatRooms.isEmpty
           ? Align(
               alignment: Alignment.center,
               child: Text(
                 "아직 채팅이 없습니다.",
+                style: TextStyle(
+                  color: GRAY_COLOR,
+                  fontSize: 12.0,
+                ),
               ))
           : Column(
               children: [

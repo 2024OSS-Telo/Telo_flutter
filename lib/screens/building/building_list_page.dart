@@ -85,6 +85,7 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("건물 목록"),
+        automaticallyImplyLeading: false,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(50.0),
           child: Container(
@@ -369,6 +370,7 @@ class _TenantBuildingListPageState extends State<TenantBuildingListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("건물 목록"),
+        automaticallyImplyLeading: false,
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(50.0),
           child: Container(
