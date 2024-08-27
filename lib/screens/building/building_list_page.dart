@@ -335,6 +335,7 @@ class _TenantBuildingListPageState extends State<TenantBuildingListPage> {
     }
   }
 
+//TODO: 여기 확인
   Future<List<BuildingWithResidents>> _fetchBuildings(String tenantID) async {
     try {
       final response = await _dio.get('$backendURL/api/residents/tenant/resident-list/$tenantID');

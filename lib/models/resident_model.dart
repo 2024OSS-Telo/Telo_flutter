@@ -1,3 +1,5 @@
+import 'building_model.dart';
+
 class Resident {
   final String residentID;
 
@@ -12,6 +14,7 @@ class Resident {
   final String deposit;
   final String contractExpirationDate;
 
+  final Building building;
   final String buildingID;
   final String buildingName;
   final String notice;
@@ -31,6 +34,7 @@ class Resident {
     required this.deposit,
     required this.contractExpirationDate,
 
+    required this.building,
     required this.buildingID,
     required this.buildingName,
     required this.notice,
@@ -51,6 +55,8 @@ class Resident {
 
       deposit: json['deposit'] ?? '',
       contractExpirationDate: json['contractExpirationDate'] ?? '',
+
+      building: Building.fromJson(json['building'] ?? {}),
 
       buildingID: json['building']['buildingID'] ?? '',
       buildingName: json['building']['buildingName'] ?? '',

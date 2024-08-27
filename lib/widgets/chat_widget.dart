@@ -482,7 +482,7 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
       }
 
       final residents =
-          await residentService.getResidentsByTenantIdAndLandlordId(
+          await residentService.getResidentsByTenantIDAndLandlordID(
               widget.chatRoom.tenantID, widget.chatRoom.landlordID);
       final resident = residents.first;
 

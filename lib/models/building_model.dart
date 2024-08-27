@@ -4,6 +4,7 @@ class Building {
   final String buildingAddress;
   final int numberOfHouseholds;
   final int numberOfRentedHouseholds;
+  final String landlordID;
   final List<String> imageURL;
   final String notice;
 
@@ -13,6 +14,7 @@ class Building {
         required this.buildingAddress,
         required this.numberOfHouseholds,
         required this.numberOfRentedHouseholds,
+        required this.landlordID,
         required this.imageURL,
         required this.notice});
 
@@ -23,6 +25,7 @@ class Building {
       buildingAddress: json['buildingAddress'],
       numberOfHouseholds: json['numberOfHouseholds'],
       numberOfRentedHouseholds: json['numberOfRentedHouseholds'],
+      landlordID: json['landlordID'],
       imageURL: List<String>.from(json['imageURL']),
       notice: json['notice'],
     );

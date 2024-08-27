@@ -7,8 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:telo/const/colors.dart';
+import 'package:telo/services/member_service.dart';
+import 'package:telo/services/resident_service.dart';
 
 import '../../const/backend_url.dart';
+import '../../models/resident_model.dart';
 
 class RepairRequestPage extends StatefulWidget {
   const RepairRequestPage({super.key, required this.onUpdate});
@@ -20,6 +23,7 @@ class RepairRequestPage extends StatefulWidget {
 }
 
 class _RepairRequestPageState extends State<RepairRequestPage> {
+  final MemberService _memberService = MemberService();
 
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
@@ -29,6 +33,12 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
   String _descriptionValue = "";
   int _estimatedValue = 0;
   List<XFile> _pickedImages = [];
+
+  String _tenantID = "";
+  String _landlordID = "";
+
+  final residentService = ResidentService();
+  late List<Resident> _residentList = [];
 
   Future<bool> _submitRequest() async {
     if (_pickedImages.isEmpty) {
@@ -46,9 +56,8 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
     }
 
     final requestPayload = {
-      // TODO: 아이디 바꾸기
-      'landlordID': "TestID",
-      'tenantID': "3",
+      'landlordID': _landlordID,
+      'tenantID': _tenantID,
       'requestTitle': _titleValue,
       'requestContent': _descriptionValue,
       'imageURL': imageURLs,
@@ -88,6 +97,26 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
       throw Exception('이미지 업로드에 실패했습니다.');
     }
   }
+
+  @override
+  void initState(){
+    super.initState();
+    _initializeResidents();
+  }
+
+  Future<void> _initializeResidents() async {
+    try {
+      _tenantID = await _memberService.findMemberID();
+
+      final residentList = await residentService.getResidentsByTenantID(_tenantID);
+      setState(() {
+        _residentList = residentList.toList();
+      });
+    } catch (e) {
+      print('수리 요청 목록 로딩 오류: $e');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +170,9 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                             constraints: BoxConstraints(),
                                             onPressed: () {
                                               setState(() {
-                                                _pickedImages.removeWhere((img) => img.path == image.path);
+                                                _pickedImages.removeWhere(
+                                                    (img) =>
+                                                        img.path == image.path);
                                               });
                                             },
                                           ),
@@ -158,9 +189,14 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                               maxWidth: 500);
                                       if (images != null) {
                                         setState(() {
-                                          List<XFile> newImages = images.where((image) => !_pickedImages.any((pickedImage) => pickedImage.path == image.path)).toList();
+                                          List<XFile> newImages = images
+                                              .where((image) => !_pickedImages
+                                                  .any((pickedImage) =>
+                                                      pickedImage.path ==
+                                                      image.path))
+                                              .toList();
                                           if (_pickedImages.length +
-                                              newImages.length <=
+                                                  newImages.length <=
                                               5) {
                                             _pickedImages.addAll(newImages);
                                           } else {
@@ -221,6 +257,7 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                       BorderRadius.all(Radius.circular(10)),
                                 )),
                           ),
+                          SizedBox(height: 10),
                           Text("설명", style: TextStyle(fontSize: 15)),
                           SizedBox(height: 10),
                           TextFormField(
@@ -254,6 +291,7 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                       BorderRadius.all(Radius.circular(10)),
                                 )),
                           ),
+                          SizedBox(height: 10),
                           Text("예상 청구 금액 (선택 사항)",
                               style: TextStyle(fontSize: 15)),
                           SizedBox(height: 10),
@@ -287,6 +325,29 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                       BorderRadius.all(Radius.circular(10)),
                                 )),
                           ),
+                          SizedBox(height: 10),
+                          Text("수리 요청 건물", style: TextStyle(fontSize: 15)),
+                          SizedBox(height: 10),
+                          DropdownButtonFormField(
+                            value: null,
+                            items: _residentList
+                                .map<DropdownMenuItem<Resident>>((Resident value) {
+                              return DropdownMenuItem<Resident>(
+                                  value: value, child: Text("${value.buildingName} ${value.apartmentNumber}"));
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _landlordID = value!.building.landlordID;
+                                print(_landlordID);
+                              });
+                            },
+                            validator: (value) {
+                              if (value == null) {
+                                return "필수 입력값입니다.";
+                              }
+                              return null;
+                            },
+                          ),
                           SizedBox(height: 20),
                           Align(
                             alignment: Alignment.center,
@@ -298,7 +359,6 @@ class _RepairRequestPageState extends State<RepairRequestPage> {
                                   borderRadius: BorderRadius.circular(7),
                                 ),
                               ),
-
                               onPressed: () async {
                                 if (await _submitRequest()) {
                                   Fluttertoast.showToast(msg: "등록되었습니다.");
