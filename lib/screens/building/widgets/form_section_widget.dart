@@ -252,8 +252,12 @@ class RentDetails extends StatelessWidget {
             },
           ),
           SizedBox(height: 30),
-          MonthlyDateSection(
+          TextFieldSection(
             label: "월세 납부일",
+            hintText: "05 (일 생략)",
+            maxLength: 2,
+            counterText: "",
+            validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
             onSaved: onSavedPaymentDate,
           ),
           SizedBox(height: 30),

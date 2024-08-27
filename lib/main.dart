@@ -8,9 +8,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:telo/const/colors.dart';
+import 'package:telo/provider/building_provider.dart';
 import 'package:telo/screens/building/building_list_page.dart';
 import 'package:telo/screens/building/resident_list_page.dart';
 import 'package:telo/screens/chat/chat_list_page.dart';
@@ -125,14 +127,19 @@ void main() async {
   KakaoSdk.init(nativeAppKey: kakaoNativeAppKey);
 
   void signOut(){}
-  runApp(
-      MaterialApp(
-        debugShowCheckedModeBanner: false,
-          //home: MainPage(onSignOut: signOut)
-          home: MyApp(),
 
-      ));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => BuildingProvider()),
+      ],
+      child: MaterialApp(
+        home: MainPage(onSignOut: signOut),
+      ),
+    ),
+  );
 }
+
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -167,6 +174,7 @@ class _MyAppState extends State<MyApp> {
           builder: (context) => MainPage(onSignOut: signOut),
         ),
       );
+
     } else {
       await _checkLoginStatus();
       await _initializeMemberType();

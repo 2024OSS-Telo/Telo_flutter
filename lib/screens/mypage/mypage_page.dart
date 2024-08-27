@@ -105,9 +105,29 @@ class _MypagePageState extends State<MypagePage> {
                             style: TextStyle( fontSize: 15.0,),
                           ),
                           SizedBox(height: 15.0),
-                          Text('로그인 정보: 카카오 혹은 구글 ${member.memberType}',
-                              style: TextStyle( fontSize: 15.0, )
-                          ),
+
+                          if (member.provider == 'kakao' || member.provider == 'google')
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '로그인 플랫폼:   ',
+                                  style: TextStyle(fontSize: 15.0),
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                  height: 30,
+                                  child: Image.asset(
+                                    member.provider == 'kakao'
+                                        ? 'assets/image/kakaotalk_platform_logo.png'
+                                        : 'assets/image/google_platform_logo.png',
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                SizedBox(width: 5),
+                              ],
+                            ),
+
                           SizedBox(height: 15.0),
                           Text('연락처: ${member.phoneNumber}',
                               style: TextStyle( fontSize: 15.0, )
