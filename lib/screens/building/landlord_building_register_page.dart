@@ -21,6 +21,8 @@ class BuildingResisterPage extends StatefulWidget {
 class _BuildingResisterPage extends State<BuildingResisterPage> {
   MemberService memberService = MemberService();
   ImageService imageService = ImageService();
+  late String memberID;
+
 
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
@@ -33,7 +35,6 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
 
   List<XFile> _pickedImages = [];
   int _householdsNumber = 1;
-  late String memberID;
 
   bool _isLandlordNameEditable = true;
   bool _isLandlordPhoneEditable = true;
@@ -117,8 +118,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return Scaffold(
         appBar: _buildAppBar(context),
         body: SingleChildScrollView(
           child: Container(
@@ -214,7 +214,6 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
             ),
           ),
         ),
-      ),
     );
   }
 

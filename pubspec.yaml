@@ -90,6 +90,8 @@ flutter:
     - assets/image/telo_green.png
     - assets/image/telo_logo.png
     - assets/image/telo_white.png
+    - assets/image/google_platform_logo.png
+    - assets/image/kakaotalk_platform_logo.png
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

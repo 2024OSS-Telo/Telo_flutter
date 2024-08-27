@@ -94,7 +94,7 @@ class MonthlyDateSection extends StatelessWidget {
         SizedBox(height: 10),
         TextFormField(
           decoration: InputDecoration(
-            hintText: '12-25',
+            hintText: '25 (일 생략)',
             hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
             counterText: "",
             enabledBorder: OutlineInputBorder(
@@ -107,7 +107,7 @@ class MonthlyDateSection extends StatelessWidget {
             ),
           ),
           keyboardType: TextInputType.datetime,
-          maxLength: 5,
+          maxLength: 2,
           inputFormatters: [
             FilteringTextInputFormatter.digitsOnly,
             _MonthlyDateFormatter(),

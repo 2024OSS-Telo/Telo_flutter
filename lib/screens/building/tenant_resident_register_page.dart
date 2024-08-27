@@ -20,7 +20,9 @@ import 'package:dio/dio.dart';
 import 'building_list_page.dart';
 
 class AddressComparePage extends StatefulWidget {
-  const AddressComparePage({super.key});
+  const AddressComparePage({
+    super.key,});
+
 
   @override
   State<AddressComparePage> createState() => _AddressComparePageState();
@@ -138,6 +140,7 @@ class _AddressComparePageState extends State<AddressComparePage> {
           ),
         ),
       );
+
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('임대인이 일치하지 않습니다.')),
@@ -498,12 +501,8 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
         onPressed: () async {
           if (await _submitRequest()) {
             Fluttertoast.showToast(msg: "등록되었습니다.");
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TenantBuildingListPage(),
-              ),
-            );
+            Navigator.pop(context);
+            Navigator.pop(context, true);
           }
         },
         child: Text(

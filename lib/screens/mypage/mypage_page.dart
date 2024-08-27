@@ -56,6 +56,7 @@ class _MypagePageState extends State<MypagePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
           appBar: AppBar(
             title: Text('내 정보'),
@@ -95,21 +96,41 @@ class _MypagePageState extends State<MypagePage> {
                                 size: 50, color: Colors.black)
                                 : null,
                           ),
-                          SizedBox(height: 30.0),
+                          SizedBox(height: 20.0),
                           Text(member.memberNickName,
                             style: TextStyle( fontSize: 20.0,),
                           ),
-                          SizedBox(height: 30.0),
+                          SizedBox(height: 40.0),
                           Text('실명: ${member.memberRealName}',
-                            style: TextStyle( fontSize: 20.0,),
+                            style: TextStyle( fontSize: 15.0,),
                           ),
                           SizedBox(height: 15.0),
-                          Text('로그인 정보: 카카오 혹은 구글}',
-                              style: TextStyle( fontSize: 16.0, )
-                          ),
+
+                          if (member.provider == 'kakao' || member.provider == 'google')
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '로그인 플랫폼:   ',
+                                  style: TextStyle(fontSize: 15.0),
+                                ),
+                                SizedBox(
+                                  width: 30,
+                                  height: 30,
+                                  child: Image.asset(
+                                    member.provider == 'kakao'
+                                        ? 'assets/image/kakaotalk_platform_logo.png'
+                                        : 'assets/image/google_platform_logo.png',
+                                    fit: BoxFit.contain,
+                                  ),
+                                ),
+                                SizedBox(width: 5),
+                              ],
+                            ),
+
                           SizedBox(height: 15.0),
                           Text('연락처: ${member.phoneNumber}',
-                              style: TextStyle( fontSize: 16.0, )
+                              style: TextStyle( fontSize: 15.0, )
                           ),
 
                         ],
