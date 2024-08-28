@@ -16,23 +16,16 @@ import '../../provider/building_provider.dart';
 import '../../services/member_service.dart';
 import 'landlord_building_register_page.dart';
 
-class LandlordBuildingListPage extends StatefulWidget {
-  const LandlordBuildingListPage({super.key});
+class LandlordBuildingListPage extends StatelessWidget {
+  LandlordBuildingListPage({super.key});
 
-  @override
-  State<LandlordBuildingListPage> createState() =>
-      _LandlordBuildingListPageState();
-}
-
-class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-
+  Widget build(BuildContext context) {
     final buildingProvider =
         Provider.of<BuildingProvider>(context, listen: false);
+
     _searchController.addListener(() {
       buildingProvider.filterBuildings(_searchController.text);
     });
@@ -40,11 +33,6 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       buildingProvider.initializeData(MemberService());
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final buildingProvider = Provider.of<BuildingProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -76,10 +64,11 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
           ),
         ),
       ),
-      body: Builder(
-        builder: (context) {
-          if (buildingProvider.buildings.isEmpty &&
-              buildingProvider.filteredBuildings.isEmpty) {
+      body: Consumer<TenantBuildingProvider>(
+        builder: (context, tenantBuildingProvider, child) {
+          if (tenantBuildingProvider.isLoading) {
+            return Center(child: CircularProgressIndicator());
+          } else if (tenantBuildingProvider.buildings.isEmpty) {
             return Center(
               child: Text(
                 textAlign: TextAlign.center,
@@ -90,8 +79,6 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
                 ),
               ),
             );
-          } else if (buildingProvider.filteredBuildings.isEmpty) {
-            return Center(child: CircularProgressIndicator());
           } else {
             return Column(
               children: [
@@ -113,7 +100,7 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
                     itemBuilder: (context, index) {
                       Building building =
                           buildingProvider.filteredBuildings[index];
-                      return _buildingCard(building);
+                      return _buildingCard(context, building);
                     },
                   ),
                 ),
@@ -126,7 +113,7 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
         onPressed: () async {
           final result = await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => BuildingResisterPage()),
+            MaterialPageRoute(builder: (context) => BuildingRegisterPage()),
           );
           if (result == true) {
             buildingProvider.fetchBuildings(buildingProvider.memberID!);
@@ -143,7 +130,7 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
     );
   }
 
-  Widget _buildingCard(Building building) {
+  Widget _buildingCard(BuildContext context, Building building) {
     return GestureDetector(
       onTap: () async {
         final result = await Navigator.push(
@@ -229,13 +216,16 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
                           ),
                         ),
                         TextSpan(
-                          text: building.notice ?? '공지를 등록해보세요',
+                          text: building.notice != null &&
+                                  building.notice!.isNotEmpty
+                              ? building.notice
+                              : '등록된 공지가 없습니다',
                           style: TextStyle(
                             fontSize: 12.0,
-                            color: (building.notice ?? '공지를 등록해보세요') ==
-                                    '공지를 등록해보세요'
-                                ? Colors.grey
-                                : Colors.black,
+                            color: building.notice != null &&
+                                    building.notice!.isNotEmpty
+                                ? Colors.black
+                                : Colors.grey,
                           ),
                         ),
                       ],
@@ -253,79 +243,25 @@ class _LandlordBuildingListPageState extends State<LandlordBuildingListPage> {
   }
 }
 
-class TenantBuildingListPage extends StatefulWidget {
-  const TenantBuildingListPage({super.key});
-
-  @override
-  State<TenantBuildingListPage> createState() => _TenantBuildingListPageState();
-}
-
-class _TenantBuildingListPageState extends State<TenantBuildingListPage> {
-  MemberService memberService = MemberService();
-  late String memberID;
-
-  final Dio _dio = Dio();
-  Future<List<BuildingWithResidents>>? _buildingsFuture;
-  late List<BuildingWithResidents> _buildings;
-  List<BuildingWithResidents> _filteredBuildings = [];
+class TenantBuildingListPage extends StatelessWidget {
+  TenantBuildingListPage({super.key});
 
   final TextEditingController _searchController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(() {
-      _filterBuildings();
-    });
-    _initializeData();
-  }
-
-  Future<void> _initializeData() async {
-    try {
-      memberID = await memberService.findMemberID();
-      setState(() {
-        _buildingsFuture = _fetchBuildings(memberID);
-      });
-    } catch (error) {
-      print('빌딩 리스트 멤버아이디 에러: $error');
-    }
-  }
-
-//TODO: 여기 확인
-  Future<List<BuildingWithResidents>> _fetchBuildings(String tenantID) async {
-    try {
-      final response = await _dio
-          .get('$backendURL/api/residents/tenant/resident-list/$tenantID');
-      if (response.statusCode == 200) {
-        List<dynamic> data = response.data;
-        print('DATA ${response.data}');
-        _buildings = data
-            .map((building) => BuildingWithResidents.fromJson(building))
-            .toList();
-        _filteredBuildings = _buildings;
-        return _buildings;
-      } else {
-        print('tenant building list error');
-        return [];
-      }
-    } catch (e, stackTrace) {
-      print('tenant building list error : $e');
-      print('스택: $stackTrace');
-      return [];
-    }
-  }
-
-  void _filterBuildings() {
-    String query = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredBuildings = _buildings.where((building) {
-        return building.buildingName.toLowerCase().contains(query);
-      }).toList();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final tenantBuildingProvider = Provider.of<TenantBuildingProvider>(context);
+
+    _searchController.addListener(() {
+      tenantBuildingProvider.filterBuildings(_searchController.text);
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (tenantBuildingProvider.isLoading) {
+        tenantBuildingProvider.initializeData();
+      }
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: Text("건물 목록"),
@@ -356,57 +292,52 @@ class _TenantBuildingListPageState extends State<TenantBuildingListPage> {
           ),
         ),
       ),
-      body: _buildingsFuture == null
-          ? Center(child: CircularProgressIndicator())
-          : FutureBuilder<List<BuildingWithResidents>>(
-              future: _buildingsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError ||
-                    !snapshot.hasData ||
-                    snapshot.data!.isEmpty) {
-                  return Center(
-                    child: Text(
-                      textAlign: TextAlign.center,
-                      '등록된 건물이 없습니다.\n우측 하단의 버튼을 통해 건물을 등록해 주세요.',
-                      style: TextStyle(
-                        color: GRAY_COLOR,
-                        fontSize: 12.0,
+      body: Builder(
+        builder: (context) {
+          final buildingProvider = Provider.of<TenantBuildingProvider>(context);
+
+          if (buildingProvider.isLoading) {
+            return Center(child: CircularProgressIndicator());
+          } else if (buildingProvider.filteredBuildings.isEmpty) {
+            return Center(
+              child: Text(
+                textAlign: TextAlign.center,
+                '등록된 건물이 없습니다.\n우측 하단의 버튼을 통해 건물을 등록해 주세요.',
+                style: TextStyle(
+                  color: GRAY_COLOR,
+                  fontSize: 12.0,
+                ),
+              ),
+            );
+          } else {
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
+                      child: Text(
+                        '건물 ${buildingProvider.filteredBuildings.length} 개',
+                        style: TextStyle(fontSize: 11.0),
                       ),
                     ),
-                  );
-                } else {
-                  final buildings = snapshot.data!;
-                  return Column(
-                    children: [
-                      Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                            child: Text(
-                              '건물 ${buildings.length} 개',
-                              style: TextStyle(fontSize: 11.0),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Expanded(
-                        child: ListView.builder(
-                          padding: EdgeInsets.all(10.0),
-                          itemCount: _filteredBuildings.length,
-                          itemBuilder: (context, index) {
-                            BuildingWithResidents resident =
-                                _filteredBuildings[index];
-                            return _buildingCard(resident);
-                          },
-                        ),
-                      ),
-                    ],
-                  );
-                }
-              },
-            ),
+                  ],
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    padding: EdgeInsets.all(10.0),
+                    itemCount: buildingProvider.filteredBuildings.length,
+                    itemBuilder: (context, index) {
+                      BuildingWithResidents buildingWithResidents = buildingProvider.filteredBuildings[index];
+                      return _buildingCard(context, buildingWithResidents);
+                    },
+                  ),
+                ),
+              ],
+            );
+          }
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push(
@@ -414,10 +345,7 @@ class _TenantBuildingListPageState extends State<TenantBuildingListPage> {
             MaterialPageRoute(builder: (context) => AddressComparePage()),
           );
           if (result == true) {
-            setState(() {
-              _buildingsFuture = _fetchBuildings(memberID);
-              _initializeData();
-            });
+            tenantBuildingProvider.fetchBuildings(tenantBuildingProvider.memberID);
           }
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
@@ -431,7 +359,8 @@ class _TenantBuildingListPageState extends State<TenantBuildingListPage> {
     );
   }
 
-  Widget _buildingCard(BuildingWithResidents buildingWithResidents) {
+  Widget _buildingCard(
+      BuildContext context, BuildingWithResidents buildingWithResidents) {
     return GestureDetector(
       onTap: () async {
         final result = await Navigator.push(
@@ -443,9 +372,10 @@ class _TenantBuildingListPageState extends State<TenantBuildingListPage> {
           ),
         );
         if (result == true) {
-          setState(() {
-            _buildingsFuture = _fetchBuildings(memberID);
-          });
+          Provider.of<TenantBuildingProvider>(context, listen: false)
+              .fetchBuildings(
+                  Provider.of<TenantBuildingProvider>(context, listen: false)
+                      .memberID!);
         }
       },
       child: Container(

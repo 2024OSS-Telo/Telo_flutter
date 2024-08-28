@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 
 import '../const/backend_url.dart';
 import '../models/building_model.dart';
+import '../models/building_with_residents_model.dart';
 import '../services/member_service.dart';
 
 class BuildingProvider with ChangeNotifier {
@@ -13,6 +14,13 @@ class BuildingProvider with ChangeNotifier {
 
   List<Building> get buildings => _buildings;
   List<Building> get filteredBuildings => _filteredBuildings;
+
+  void filterAvailableBuildings() {
+    _filteredBuildings = _buildings.where((building) {
+      return (building.numberOfHouseholds - building.numberOfRentedHouseholds) > 0;
+    }).toList();
+    notifyListeners();
+  }
 
   Future<void> initializeData(MemberService memberService) async {
     try {
@@ -68,5 +76,61 @@ class BuildingProvider with ChangeNotifier {
       _filteredBuildings = _buildings;
       notifyListeners();
     }
+  }
+}
+
+class TenantBuildingProvider with ChangeNotifier {
+  final MemberService memberService = MemberService();
+  final Dio _dio = Dio();
+
+  late String memberID;
+  List<BuildingWithResidents> _buildings = [];
+  List<BuildingWithResidents> filteredBuildings = [];
+  bool _isLoading = true;
+  String _error = '';
+
+  List<BuildingWithResidents> get buildings => filteredBuildings;
+  bool get isLoading => _isLoading;
+  String get error => _error;
+
+  TenantBuildingProvider() {
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
+    try {
+      memberID = await memberService.findMemberID();
+      await fetchBuildings(memberID);
+    } catch (error) {
+      _error = '빌딩 리스트 멤버아이디 에러: $error';
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchBuildings(String tenantID) async {
+    try {
+      final response = await _dio.get('$backendURL/api/residents/tenant/resident-list/$tenantID');
+      if (response.statusCode == 200) {
+        List<dynamic> data = response.data;
+        _buildings = data.map((building) => BuildingWithResidents.fromJson(building)).toList();
+        filteredBuildings = _buildings;
+      } else {
+        _error = 'tenant building list error';
+      }
+    } catch (e) {
+      _error = 'tenant building list error : $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void filterBuildings(String query) {
+    query = query.toLowerCase();
+    filteredBuildings = _buildings.where((building) {
+      return building.buildingName.toLowerCase().contains(query);
+    }).toList();
+    notifyListeners();
   }
 }

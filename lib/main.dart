@@ -132,6 +132,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => BuildingProvider()),
+        ChangeNotifierProvider(create: (_) => TenantBuildingProvider()),
       ],
       child: MaterialApp(
         home: MainPage(onSignOut: signOut),
@@ -655,7 +656,7 @@ class _MainPageState extends State<MainPage> {
     super.initState();
     _initializeData();
     _widgetOptions = <Widget>[
-      HomePage(onSignOut: widget.onSignOut),
+      Placeholder(),
       ChatListPage(),
       Placeholder(),
       RepairListPage(),
@@ -668,6 +669,11 @@ class _MainPageState extends State<MainPage> {
       memberID = await memberService.findMemberID();
       if (memberID != null) {
         await _fetchMemberType();
+        setState(() {
+          _widgetOptions[0] = _memberType == 'landlord'
+              ? LandlordHomePage(onSignOut: widget.onSignOut)
+              : TenantHomePage(onSignOut: widget.onSignOut);
+        });
       } else {
         print('Member ID could not be initialized.');
       }
@@ -686,6 +692,8 @@ class _MainPageState extends State<MainPage> {
       final response =
           await _dio.get('$backendURL/api/members/$memberID/memberType');
       if (response.statusCode == 200) {
+        print('member type: ${response.data}');
+
         setState(() {
           _memberType = response.data;
         });

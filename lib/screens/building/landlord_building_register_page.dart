@@ -11,17 +11,19 @@ import 'package:telo/services/image_service.dart';
 import '../../const/backend_url.dart';
 import '../../services/member_service.dart';
 
-class BuildingResisterPage extends StatefulWidget {
-  const BuildingResisterPage({super.key});
+class BuildingRegisterPage extends StatefulWidget {
+  const BuildingRegisterPage({super.key});
 
   @override
-  State<BuildingResisterPage> createState() => _BuildingResisterPage();
+  State<BuildingRegisterPage> createState() => _BuildingRegisterPage();
 }
 
-class _BuildingResisterPage extends State<BuildingResisterPage> {
+class _BuildingRegisterPage extends State<BuildingRegisterPage> {
   MemberService memberService = MemberService();
   ImageService imageService = ImageService();
   late String memberID;
+
+  bool _isLoading = false;
 
 
   final _formKey = GlobalKey<FormState>();
@@ -72,6 +74,12 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
   }
 
   Future<bool> _submitRequest() async {
+    if (_isLoading) return false;
+
+    setState(() {
+      _isLoading = true;
+    });
+
     if (_pickedImages.isEmpty) {
       Fluttertoast.showToast(msg: "사진을 한 장 이상 등록해야 합니다.");
       return false;
@@ -100,7 +108,7 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
     };
 
     final response = await _dio.post(
-      "$backendURL/api/buildings/landlord/building-resister",
+      "$backendURL/api/buildings/landlord/building-register",
       options: Options(
         headers: {
           'Content-Type': 'application/json',
@@ -237,12 +245,12 @@ class _BuildingResisterPage extends State<BuildingResisterPage> {
       child: TextButton(
         style: TextButton.styleFrom(
           fixedSize: Size(350, 20),
-          backgroundColor: MAIN_COLOR,
+            backgroundColor: _isLoading ? GRAY_COLOR : MAIN_COLOR,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(7),
           ),
         ),
-        onPressed: () async {
+        onPressed: _isLoading ? null : () async {
           if (await _submitRequest()) {
             Fluttertoast.showToast(msg: "등록되었습니다.");
             Navigator.pop(context, true);

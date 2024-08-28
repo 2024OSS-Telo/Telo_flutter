@@ -154,7 +154,7 @@ class _AddressComparePageState extends State<AddressComparePage> {
       appBar: AppBar(
         title: Text('건물 등록'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,7 +181,8 @@ class _AddressComparePageState extends State<AddressComparePage> {
               ),
             ),
             if (_addressSuggestions.isNotEmpty)
-              Expanded(
+              SizedBox(
+                height: 150.0,
                 child: ListView.builder(
                   itemCount: _addressSuggestions.length,
                   itemBuilder: (context, index) {
@@ -292,6 +293,8 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
 
   List<XFile> _pickedImages = [];
 
+  bool _isLoading = false;
+
   final TextEditingController _rentAmountController = TextEditingController();
   final TextEditingController _paymentDateController = TextEditingController();
 
@@ -328,6 +331,12 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
   }
 
   Future<bool> _submitRequest() async {
+    if (_isLoading) return false;
+
+    setState(() {
+      _isLoading = true;
+    });
+
     if (_pickedImages.isEmpty) {
       Fluttertoast.showToast(msg: "사진을 한 장 이상 등록해야 합니다.");
       return false;
@@ -357,7 +366,7 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
 
     final response = await _dio.post(
       //TODO: url에 buildingID, tenantID 전달
-      "$backendURL/api/residents/tenant/resident-resister/${widget.buildingID}/$memberID",
+      "$backendURL/api/residents/tenant/resident-register/${widget.buildingID}/$memberID",
       options: Options(
         headers: {
           'Content-Type': 'application/json',
@@ -493,12 +502,12 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
       child: TextButton(
         style: TextButton.styleFrom(
           fixedSize: Size(350, 20),
-          backgroundColor: MAIN_COLOR,
+          backgroundColor: _isLoading ? GRAY_COLOR : MAIN_COLOR,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(7),
           ),
         ),
-        onPressed: () async {
+        onPressed: _isLoading ? null : () async {
           if (await _submitRequest()) {
             Fluttertoast.showToast(msg: "등록되었습니다.");
             Navigator.pop(context);
