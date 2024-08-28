@@ -126,7 +126,7 @@ void main() async {
   String? token = await FirebaseMessaging.instance.getToken();
   print("@@@@@@@@@token: $token");
 
-  KakaoSdk.init(nativeAppKey: kakaoNativeAppKey);
+  KakaoSdk.init(nativeAppKey: '7175c6f048b50e0a135ab044f8f3155e');
 
   void signOut(){}
 
@@ -138,7 +138,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => RepairRequestProvider()),
       ],
       child: MaterialApp(
-        home: MainPage(onSignOut: signOut),
+        //home: MainPage(onSignOut: signOut),
+        home: MyApp(),
       ),
     ),
   );

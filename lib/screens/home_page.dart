@@ -112,13 +112,18 @@ class _LandlordBodyHomeState extends State<LandlordBodyHome> {
             color: MAIN_COLOR,
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Row(children: [
-              ClipOval(
-                child: Image.network(
-                  member!.profile,
-                  width: 70,
-                  height: 70,
-                  fit: BoxFit.cover,
-                ),
+              CircleAvatar(
+                radius: 35,
+                backgroundColor: LIGHT_GRAY_COLOR,
+                backgroundImage: member?.profile != null &&
+                    member!.profile!.isNotEmpty
+                    ? NetworkImage(member!.profile!)
+                    : null,
+                child: member!.profile == null ||
+                    member!.profile!.isEmpty
+                    ? Icon(Icons.person,
+                    size: 50, color: Colors.black)
+                    : null,
               ),
               SizedBox(
                 width: 10,
@@ -392,13 +397,18 @@ class _TenantBodyHomeState extends State<TenantBodyHome> {
             color: MAIN_COLOR,
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Row(children: [
-              ClipOval(
-                child: Image.network(
-                  member!.profile,
-                  width: 70,
-                  height: 70,
-                  fit: BoxFit.cover,
-                ),
+              CircleAvatar(
+                radius: 35,
+                backgroundColor: LIGHT_GRAY_COLOR,
+                backgroundImage: member?.profile != null &&
+                    member!.profile!.isNotEmpty
+                    ? NetworkImage(member!.profile!)
+                    : null,
+                child: member!.profile == null ||
+                    member!.profile!.isEmpty
+                    ? Icon(Icons.person,
+                    size: 50, color: Colors.black)
+                    : null,
               ),
               SizedBox(
                 width: 10,
