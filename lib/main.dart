@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:telo/const/colors.dart';
 import 'package:telo/provider/building_provider.dart';
+import 'package:telo/provider/repair_request_provider.dart';
 import 'package:telo/screens/building/building_list_page.dart';
 import 'package:telo/screens/building/resident_list_page.dart';
 import 'package:telo/screens/chat/chat_list_page.dart';
@@ -133,6 +134,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => BuildingProvider()),
         ChangeNotifierProvider(create: (_) => TenantBuildingProvider()),
+        ChangeNotifierProvider(create: (_) => RepairRequestProvider()),
       ],
       child: MaterialApp(
         home: MainPage(onSignOut: signOut),
