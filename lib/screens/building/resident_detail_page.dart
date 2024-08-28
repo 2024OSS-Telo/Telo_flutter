@@ -29,13 +29,13 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
   @override
   void initState() {
     super.initState();
-    _fetchLandlordDetails();
     _initializeData();
   }
 
   Future<void> _initializeData() async {
     try {
       memberID = await memberService.findMemberID();
+      await _fetchLandlordDetails();
       setState(() {
       });
     } catch (error) {
@@ -45,12 +45,16 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
 
   Future<void> _fetchLandlordDetails() async {
     try {
-      final response = await _dio.get('$backendURL/api/members/$memberID');
+      final response = await _dio.get('$backendURL/api/members/${widget.landlordID}');
       if (response.statusCode == 200) {
         final data = response.data;
+
         setState(() {
-          landlordName = data['memberRealName'];
-          landlordPhoneNumber = data['phoneNumber'];
+          landlordName = data['memberRealName'] ?? 'Unknown';
+          landlordPhoneNumber = data['phoneNumber'] ?? 'Unknown';
+
+          print('실명 : $landlordName');
+          print('전번 : $landlordPhoneNumber');
         });
       } else {
         setState(() {
@@ -66,6 +70,7 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
   @override
   Widget build(BuildContext context) {
     final buildingWithResidents = widget.buildingWithResidents;
+    double screenWidth = MediaQuery.of(context).size.width;
 
     return MaterialApp(
         home: Scaffold(
@@ -84,16 +89,18 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                 },
               ),
               bottom: PreferredSize(
-                preferredSize: Size.fromHeight(200.0),
+                preferredSize: Size.fromHeight(160.0),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
                       notice(),
+                      SizedBox(height: 10,),
                       Divider(
                         color: LIGHT_GRAY_COLOR,
                         thickness: 0.5,
                       ),
+                      SizedBox(height: 10,),
                     ],
                   ),
                 ),
@@ -102,18 +109,18 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
             body: SingleChildScrollView(
                 child: Column(children: [
                   SizedBox(
-                    height: 200,
+                    height: 250,
                     width: double.infinity,
                     child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       itemCount: buildingWithResidents.buildingImageURL?.length,
                       itemBuilder: (context, index) {
-                        return Padding(
+                        return Container(
                           padding: const EdgeInsets.only(right: 8.0),
                           child:
                           Image.network(
                             buildingWithResidents.buildingImageURL![index],
-                             width: 200,
+                            width: screenWidth,
                             fit: BoxFit.cover,
                           ),
                         );
@@ -130,27 +137,27 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.w600),
                             ),
-                            SizedBox(height: 10),
+                            SizedBox(height: 20),
                             Row(
                               children: [
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       "주소",
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600),
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       "계약 분류",
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600),
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     if (buildingWithResidents.rentType == '월세') ...[
                                       Text(
                                         '월세',
@@ -158,7 +165,7 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                                             fontSize: 15,
                                             fontWeight: FontWeight.w600),
                                       ),
-                                      SizedBox(width: 10),
+                                      SizedBox(height: 10),
                                       Text(
                                         '월세 납부일',
                                         style: TextStyle(
@@ -172,7 +179,7 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600),
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       "계약 기간",
                                       style: TextStyle(
@@ -187,14 +194,14 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       buildingWithResidents.buildingAddress,
                                       style: TextStyle(
                                         fontSize: 15,
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       buildingWithResidents.rentType,
                                       style: TextStyle(
@@ -208,7 +215,7 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                                         style: TextStyle(
                                             fontSize: 15),
                                       ),
-                                      SizedBox(width: 10),
+                                      SizedBox(height: 10),
                                       Text(
                                         buildingWithResidents.monthlyRentPaymentDate,
                                         style: TextStyle(
@@ -216,14 +223,14 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                                       ),
                                     ],
 
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       buildingWithResidents.deposit,
                                       style: TextStyle(
                                         fontSize: 15,
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       buildingWithResidents.contractExpirationDate,
                                       style: TextStyle(
@@ -242,27 +249,27 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.w600),
                             ),
-                            SizedBox(height: 10),
+                            SizedBox(height: 20),
                             Row(
                               children: [
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       "임대인 명",
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600),
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       "연락처",
                                       style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600),
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                   ],
                                 ),
                                 SizedBox(
@@ -271,14 +278,14 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       landlordName,
                                       style: TextStyle(
                                         fontSize: 15,
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(height: 10),
                                     Text(
                                       landlordPhoneNumber,
                                       style: TextStyle(
@@ -289,9 +296,9 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 10,),
+                            SizedBox(height: 10),
                             Divider(color: LIGHT_GRAY_COLOR, thickness: 0.5),
-                            SizedBox(height: 10,),
+                            SizedBox(height: 10),
                             Text(
                               "계약서 사진",
                               style: TextStyle(
@@ -323,7 +330,6 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
 
   Widget notice() {
     final buildingWithResidents = widget.buildingWithResidents;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -347,7 +353,7 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
             TextFormField(
               initialValue: buildingWithResidents.notice,
               enabled: false,
-              maxLines: 3,
+              maxLines: 2,
               decoration: InputDecoration(
                 border: InputBorder.none,
               ),

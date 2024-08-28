@@ -39,19 +39,15 @@ class _AddressComparePageState extends State<AddressComparePage> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _landlordNameController = TextEditingController();
 
-  bool _isLoading = false;
-
   Future<void> fetchBuildingAddresses(String query) async {
     if (query.isEmpty) {
       setState(() {
         _addressSuggestions = [];
-        _isLoading = false;
       });
       return;
     }
 
     setState(() {
-      _isLoading = true;
     });
 
     try {
@@ -63,20 +59,17 @@ class _AddressComparePageState extends State<AddressComparePage> {
       if (response.statusCode == 200) {
         setState(() {
           _addressSuggestions = List<String>.from(response.data);
-          _isLoading = false;
         });
       } else {
         print('응답 오류: ${response.statusCode}');
         setState(() {
           _addressSuggestions = [];
-          _isLoading = false;
         });
       }
     } catch (e) {
       print('API 호출 오류: $e');
       setState(() {
         _addressSuggestions = [];
-        _isLoading = false;
       });
     }
   }
@@ -177,7 +170,6 @@ class _AddressComparePageState extends State<AddressComparePage> {
                   borderSide: BorderSide(color: LIGHT_GRAY_COLOR),
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
-                suffixIcon: _isLoading ? CircularProgressIndicator() : null,
               ),
             ),
             if (_addressSuggestions.isNotEmpty)
@@ -437,7 +429,7 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
                     validator: (value) => value!.isEmpty ? "필수 입력값입니다." : null,
                     onSaved: (value) => _apartmentNumber = value!,
                   ),
-                  SizedBox(height: 30),
+                  SizedBox(height: 20),
                   RentTypeSelector(
                     initialValue: _rentType,
                     onChanged: (value) {
@@ -502,12 +494,12 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
       child: TextButton(
         style: TextButton.styleFrom(
           fixedSize: Size(350, 20),
-          backgroundColor: _isLoading ? GRAY_COLOR : MAIN_COLOR,
+          backgroundColor: MAIN_COLOR,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(7),
           ),
         ),
-        onPressed: _isLoading ? null : () async {
+        onPressed: () async {
           if (await _submitRequest()) {
             Fluttertoast.showToast(msg: "등록되었습니다.");
             Navigator.pop(context);
