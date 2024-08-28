@@ -33,6 +33,14 @@ class _InitialInputSectionWidgetState extends State<InitialInputSectionWidget> {
   late TextEditingController controller;
 
   @override
+  void didUpdateWidget(covariant InitialInputSectionWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialValue != widget.initialValue) {
+      controller?.text = widget.initialValue;
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.initialValue);
@@ -135,7 +143,7 @@ class _InitialPhoneNumberSectionState  extends State<InitialPhoneNumberSection> 
         ),
         SizedBox(height: 10),
         TextFormField(
-          controller: controller, // TextEditingController를 사용하여 값 설정
+          controller: controller,
           decoration: InputDecoration(
             hintText: '010-xxxx-xxxx',
             hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
@@ -165,12 +173,12 @@ class _InitialPhoneNumberSectionState  extends State<InitialPhoneNumberSection> 
           onSaved: widget.isEditable
               ? (value) => widget.onSaved?.call(_formatNumber(value ?? ''))
               : null,
-          validator: (value) {
-            if (value == null || value.length != 13) {
-              return '전화번호 형식이 틀렸습니다';
-            }
-            return null;
-          },
+          // validator: (value) {
+          //   if (value == null || value.length != 13) {
+          //     return '전화번호 형식이 틀렸습니다';
+          //   }
+          //   return null;
+          // },
         ),
       ],
     );
