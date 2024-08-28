@@ -22,7 +22,7 @@ class BuildingProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> initializeData(MemberService memberService) async {
+  Future<void>  initializeData(MemberService memberService) async {
     try {
       memberID = await memberService.findMemberID();
       await fetchBuildings(memberID!);

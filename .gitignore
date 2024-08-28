@@ -49,3 +49,7 @@ app.*.map.json
 
 #backendURL
 /lib/const/backend_url.dart
+
+#firebase
+lib/firebase_options.dart
+firebase.json

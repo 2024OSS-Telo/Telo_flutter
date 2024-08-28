@@ -33,7 +33,7 @@ class MemberService {
     }
 
     //TODO: 추후 리턴값 없이 로그인화면으로 돌아가도록 수정
-    String ID = "4";
+    String ID = "TestID";
     print('로그인된 사용자가 없습니다. 기본 ID를 반환합니다. : $ID');
     return ID;
   }

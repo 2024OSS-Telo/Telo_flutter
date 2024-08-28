@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:telo/const/colors.dart';
-import 'package:telo/main.dart';
-import 'package:telo/main.dart';
 import 'package:telo/screens/notification_page.dart';
-import 'package:telo/screens/repair/repair_list_page.dart';
-
 import '../models/building_model.dart';
 import '../provider/building_provider.dart';
+import '../provider/repair_request_provider.dart';
 import '../services/member_service.dart';
+import '../widgets/repair_request_widget.dart';
 
 class LandlordHomePage extends StatelessWidget {
   final VoidCallback onSignOut;
@@ -20,11 +18,14 @@ class LandlordHomePage extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            appBar: LandlordHeaderHome(), body: LandlordBodyHome(onSignOut: onSignOut)));
+            backgroundColor: MAIN_COLOR,
+            appBar: LandlordHeaderHome(),
+            body: LandlordBodyHome(onSignOut: onSignOut)));
   }
 }
 
-class LandlordHeaderHome extends StatelessWidget implements PreferredSizeWidget {
+class LandlordHeaderHome extends StatelessWidget
+    implements PreferredSizeWidget {
   const LandlordHeaderHome({super.key});
 
   @override
@@ -55,10 +56,31 @@ class LandlordHeaderHome extends StatelessWidget implements PreferredSizeWidget 
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
 
-class LandlordBodyHome extends StatelessWidget {
+class LandlordBodyHome extends StatefulWidget {
   final VoidCallback onSignOut;
 
   const LandlordBodyHome({super.key, required this.onSignOut});
+
+  @override
+  State<LandlordBodyHome> createState() => _LandlordBodyHomeState();
+}
+
+class _LandlordBodyHomeState extends State<LandlordBodyHome> {
+  final memberService = MemberService();
+  late RepairRequestProvider repairRequestProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeMember();
+  }
+
+  Future<void> _initializeMember() async {
+    final String memberID = await memberService.findMemberID();
+    repairRequestProvider =
+        Provider.of<RepairRequestProvider>(context, listen: false);
+    await repairRequestProvider.initializeData(memberID);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,35 +104,70 @@ class LandlordBodyHome extends StatelessWidget {
               child: IconButton(
                 icon: Icon(Icons.logout),
                 color: Colors.white,
-                onPressed: onSignOut,
+                onPressed: widget.onSignOut,
               ),
             ),
           ),
         ),
-        Flexible(
+        Expanded(
           flex: 8,
-          child: Stack(
-            children: [
-              Container(
-                color: MAIN_COLOR,
+          child: Container(
+            padding: EdgeInsets.fromLTRB(15, 10, 15, 0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10.0),
+                topRight: Radius.circular(10.0),
               ),
-              Container(
-                  decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10.0),
-                  topRight: Radius.circular(10.0),
-                ),
-              )),
-              Positioned(
-                top: 20,
-                left: 20,
-                right: 20,
-                bottom: 20,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 20.0),
-                  child: Text(
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "진행 중인 수리 요청",
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                  SizedBox(height: 10,),
+                  Container(
+                      height: 200,
+                      child: Consumer<RepairRequestProvider>(
+                          builder: (context, repairRequestProvider, child) {
+                        final repairRequests = repairRequestProvider
+                            .repairRequests.reversed
+                            .toList();
+
+                        if (repairRequests == null || repairRequests.isEmpty) {
+                          return Center(
+                              child: Text(
+                            '아직 수리 요청이 없습니다.',
+                            style: TextStyle(
+                              color: GRAY_COLOR,
+                              fontSize: 12.0,
+                            ),
+                          ));
+                        }
+
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: repairRequests.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: 400,
+                              child: RepairRequestCard(
+                                repairRequest: repairRequests[index],
+                              ),
+                            );
+                          },
+                        );
+                      })),
+                  SizedBox(height: 20,),
+                  Text(
                     "임대 가능 건물",
                     style: const TextStyle(
                       fontSize: 20.0,
@@ -119,35 +176,32 @@ class LandlordBodyHome extends StatelessWidget {
                     ),
                     textAlign: TextAlign.start,
                   ),
-                ),
-              ),
-              Positioned(
-                top: 80,
-                left: 20,
-                right: 20,
-                bottom: 20,
-                child: Consumer<BuildingProvider>(
-                  builder: (context, buildingProvider, child) {
-                    if (buildingProvider.filteredBuildings.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          "등록된 건물이 없습니다. \n 건물 탭에서 건물을 등록해 주세요.",
-                          style: TextStyle(fontSize: 16.0, color: GRAY_COLOR),
-                        ),
+                  SizedBox(height: 10,),
+                  Consumer<BuildingProvider>(
+                    builder: (context, buildingProvider, child) {
+                      if (buildingProvider.filteredBuildings.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            "등록된 건물이 없습니다. \n 건물 탭에서 건물을 등록해 주세요.",
+                            style:
+                                TextStyle(fontSize: 16.0, color: GRAY_COLOR),
+                          ),
+                        );
+                      }
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: buildingProvider.filteredBuildings.length,
+                        itemBuilder: (context, index) {
+                          Building building =
+                              buildingProvider.filteredBuildings[index];
+                          return _buildingCard(building);
+                        },
                       );
-                    }
-                    return ListView.builder(
-                      itemCount: buildingProvider.filteredBuildings.length,
-                      itemBuilder: (context, index) {
-                        Building building =
-                        buildingProvider.filteredBuildings[index];
-                        return _buildingCard(building);
-                      },
-                    );
-                  },
-                ),
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],
@@ -214,12 +268,14 @@ class LandlordBodyHome extends StatelessWidget {
                           ),
                         ),
                         TextSpan(
-                          text: building.notice != null && building.notice!.isNotEmpty
+                          text: building.notice != null &&
+                                  building.notice!.isNotEmpty
                               ? building.notice
                               : '등록된 공지가 없습니다',
                           style: TextStyle(
                             fontSize: 12.0,
-                            color: building.notice != null && building.notice!.isNotEmpty
+                            color: building.notice != null &&
+                                    building.notice!.isNotEmpty
                                 ? Colors.black
                                 : Colors.grey,
                           ),
@@ -239,8 +295,6 @@ class LandlordBodyHome extends StatelessWidget {
   }
 }
 
-
-
 class TenantHomePage extends StatelessWidget {
   final VoidCallback onSignOut;
 
@@ -251,7 +305,8 @@ class TenantHomePage extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            appBar: TenantHeaderHome(), body: TenantBodyHome(onSignOut: onSignOut)));
+            appBar: TenantHeaderHome(),
+            body: TenantBodyHome(onSignOut: onSignOut)));
   }
 }
 
@@ -286,10 +341,31 @@ class TenantHeaderHome extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
 
-class TenantBodyHome extends StatelessWidget {
+class TenantBodyHome extends StatefulWidget {
   final VoidCallback onSignOut;
 
   const TenantBodyHome({super.key, required this.onSignOut});
+
+  @override
+  State<TenantBodyHome> createState() => _TenantBodyHomeState();
+}
+
+class _TenantBodyHomeState extends State<TenantBodyHome> {
+  final memberService = MemberService();
+  late RepairRequestProvider repairRequestProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeMember();
+  }
+
+  Future<void> _initializeMember() async {
+    final String memberID = await memberService.findMemberID();
+    repairRequestProvider =
+        Provider.of<RepairRequestProvider>(context, listen: false);
+    await repairRequestProvider.initializeData(memberID);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -304,7 +380,7 @@ class TenantBodyHome extends StatelessWidget {
               child: IconButton(
                 icon: Icon(Icons.logout),
                 color: Colors.white,
-                onPressed: onSignOut,
+                onPressed: widget.onSignOut,
               ),
             ),
           ),
@@ -323,8 +399,47 @@ class TenantBodyHome extends StatelessWidget {
                       topLeft: Radius.circular(10.0),
                       topRight: Radius.circular(10.0),
                     ),
-                  )),
+                  ),
+                  child: Consumer<RepairRequestProvider>(
+                      builder: (context, repairRequestProvider, child) {
+                    final repairRequests =
+                        repairRequestProvider.repairRequests.reversed.toList();
 
+                    if (repairRequests == null || repairRequests.isEmpty) {
+                      return Center(
+                          child: Text(
+                        '아직 수리 요청이 없습니다.',
+                        style: TextStyle(
+                          color: GRAY_COLOR,
+                          fontSize: 12.0,
+                        ),
+                      ));
+                    }
+
+                    return Column(
+                      children: [
+                        Text(
+                          "진행 중인 수리 요청",
+                          style: const TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            // scrollDirection: Axis.horizontal,
+                            itemCount: repairRequests.length,
+                            itemBuilder: (context, index) {
+                              return RepairRequestCard(
+                                repairRequest: repairRequests[index],
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  })),
             ],
           ),
         ),
