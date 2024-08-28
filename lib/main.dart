@@ -121,10 +121,6 @@ void main() async {
     }
   });
 
-  //TODO: 테스트를 위한 토큰 리턴 (삭제하기)
-  String? token = await FirebaseMessaging.instance.getToken();
-  print("@@@@@@@@@token: $token");
-
   KakaoSdk.init(nativeAppKey: kakaoNativeAppKey);
 
   void signOut(){}

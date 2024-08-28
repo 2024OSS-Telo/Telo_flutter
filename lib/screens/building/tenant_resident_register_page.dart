@@ -144,6 +144,7 @@ class _AddressComparePageState extends State<AddressComparePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('건물 등록'),
       ),
@@ -357,7 +358,6 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
     };
 
     final response = await _dio.post(
-      //TODO: url에 buildingID, tenantID 전달
       "$backendURL/api/residents/tenant/resident-register/${widget.buildingID}/$memberID",
       options: Options(
         headers: {
@@ -378,6 +378,7 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: Colors.white,
         appBar: _buildAppBar(context),
         body: SingleChildScrollView(
           child: Container(

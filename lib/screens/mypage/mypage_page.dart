@@ -58,7 +58,9 @@ class _MypagePageState extends State<MypagePage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+          backgroundColor: Colors.white,
           appBar: AppBar(
+            backgroundColor: Colors.white,
             title: Text('내 정보'),
           ),
           body: Center(

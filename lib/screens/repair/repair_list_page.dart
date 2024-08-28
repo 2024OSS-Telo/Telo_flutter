@@ -51,7 +51,9 @@ class _RepairListPageState extends State<RepairListPage> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
+          backgroundColor: Colors.white,
           appBar: AppBar(
+            backgroundColor: Colors.white,
             title: Text("수리 요청 목록"),
           ),
           body: Consumer<RepairRequestProvider>(

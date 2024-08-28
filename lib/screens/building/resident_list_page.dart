@@ -75,7 +75,9 @@ class ResidentListPageState extends State<ResidentListPage> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
+          backgroundColor: Colors.white,
           title: Text(widget.buildingName),
           centerTitle: true,
           leading: IconButton(

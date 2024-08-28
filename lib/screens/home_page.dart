@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:telo/const/colors.dart';
@@ -5,6 +7,7 @@ import 'package:telo/screens/notification_page.dart';
 
 import '../models/building_model.dart';
 import '../models/building_with_residents_model.dart';
+import '../models/member_model.dart';
 import '../provider/building_provider.dart';
 import '../provider/repair_request_provider.dart';
 import '../services/member_service.dart';
@@ -21,35 +24,34 @@ class LandlordHomePage extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             backgroundColor: MAIN_COLOR,
-            appBar: LandlordHeaderHome(),
-            body: LandlordBodyHome(onSignOut: onSignOut)));
+            appBar: HeaderHome(onSignOut: onSignOut),
+            body: LandlordBodyHome()));
   }
 }
 
-class LandlordHeaderHome extends StatelessWidget
-    implements PreferredSizeWidget {
-  const LandlordHeaderHome({super.key});
+class HeaderHome extends StatelessWidget implements PreferredSizeWidget {
+  const HeaderHome({super.key, required this.onSignOut});
+
+  final VoidCallback onSignOut;
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: MAIN_COLOR,
+      leadingWidth: 100,
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Image.asset(
+          'assets/image/telo_white.png',
+          fit: BoxFit.cover,
+        ),
+      ),
       actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 15.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationPage()),
-              );
-            },
-            child: Icon(
-              Icons.notifications,
-              color: Colors.white,
-            ),
-          ),
-        )
+        IconButton(
+          icon: Icon(Icons.logout),
+          color: Colors.white,
+          onPressed: onSignOut,
+        ),
       ],
     );
   }
@@ -59,9 +61,7 @@ class LandlordHeaderHome extends StatelessWidget
 }
 
 class LandlordBodyHome extends StatefulWidget {
-  final VoidCallback onSignOut;
-
-  const LandlordBodyHome({super.key, required this.onSignOut});
+  const LandlordBodyHome({super.key});
 
   @override
   State<LandlordBodyHome> createState() => _LandlordBodyHomeState();
@@ -69,6 +69,7 @@ class LandlordBodyHome extends StatefulWidget {
 
 class _LandlordBodyHomeState extends State<LandlordBodyHome> {
   final memberService = MemberService();
+  Member? member;
   late RepairRequestProvider repairRequestProvider;
 
   @override
@@ -79,13 +80,21 @@ class _LandlordBodyHomeState extends State<LandlordBodyHome> {
 
   Future<void> _initializeMember() async {
     final String memberID = await memberService.findMemberID();
+    final Member _member = await memberService.getMember(memberID);
     repairRequestProvider =
         Provider.of<RepairRequestProvider>(context, listen: false);
     await repairRequestProvider.initializeData(memberID);
+    setState(() {
+      member = _member;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (member == null) {
+      return CircularProgressIndicator();
+    }
+
     final buildingProvider =
         Provider.of<BuildingProvider>(context, listen: false);
 
@@ -97,24 +106,35 @@ class _LandlordBodyHomeState extends State<LandlordBodyHome> {
 
     return Column(
       children: [
-        Flexible(
+        Expanded(
           flex: 2,
           child: Container(
             color: MAIN_COLOR,
-            child: Align(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                icon: Icon(Icons.logout),
-                color: Colors.white,
-                onPressed: widget.onSignOut,
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Row(children: [
+              ClipOval(
+                child: Image.network(
+                  member!.profile,
+                  width: 70,
+                  height: 70,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
+              SizedBox(
+                width: 10,
+              ),
+              Text("${member!.memberNickName}님",
+                  style: TextStyle(
+                    fontSize: 40,
+                    color: Colors.white,
+                  ))
+            ]),
           ),
         ),
         Expanded(
-          flex: 8,
+          flex: 10,
           child: Container(
-            padding: EdgeInsets.fromLTRB(15, 10, 15, 0),
+            padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -135,9 +155,11 @@ class _LandlordBodyHomeState extends State<LandlordBodyHome> {
                     ),
                     textAlign: TextAlign.start,
                   ),
-                  SizedBox(height: 10,),
-                  Container(
-                      height: 200,
+                  SizedBox(
+                    height: 10,
+                  ),
+                  SizedBox(
+                      height: 180,
                       child: Consumer<RepairRequestProvider>(
                           builder: (context, repairRequestProvider, child) {
                         final repairRequests = repairRequestProvider
@@ -168,7 +190,9 @@ class _LandlordBodyHomeState extends State<LandlordBodyHome> {
                           },
                         );
                       })),
-                  SizedBox(height: 20,),
+                  SizedBox(
+                    height: 20,
+                  ),
                   Text(
                     "임대 가능 건물",
                     style: const TextStyle(
@@ -178,15 +202,19 @@ class _LandlordBodyHomeState extends State<LandlordBodyHome> {
                     ),
                     textAlign: TextAlign.start,
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(
+                    height: 10,
+                  ),
                   Consumer<BuildingProvider>(
                     builder: (context, buildingProvider, child) {
                       if (buildingProvider.filteredBuildings.isEmpty) {
                         return const Center(
                           child: Text(
-                            "등록된 건물이 없습니다. \n 건물 탭에서 건물을 등록해 주세요.",
-                            style:
-                                TextStyle(fontSize: 16.0, color: GRAY_COLOR),
+                            "등록된 건물이 없습니다. \n건물 탭에서 건물을 등록해 주세요.",
+                              style: TextStyle(
+                                color: GRAY_COLOR,
+                                fontSize: 12.0,
+                              ),
                           ),
                         );
                       }
@@ -198,6 +226,7 @@ class _LandlordBodyHomeState extends State<LandlordBodyHome> {
                               buildingProvider.filteredBuildings[index];
                           return _buildingCard(building);
                         },
+                        physics: NeverScrollableScrollPhysics(),
                       );
                     },
                   ),
@@ -307,99 +336,144 @@ class TenantHomePage extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            appBar: TenantHeaderHome(),
-            body: TenantBodyHome(onSignOut: onSignOut)));
+            backgroundColor: MAIN_COLOR,
+            appBar: HeaderHome(onSignOut: onSignOut), body: TenantBodyHome()));
   }
 }
 
-class TenantHeaderHome extends StatelessWidget implements PreferredSizeWidget {
-  const TenantHeaderHome({super.key});
+class TenantBodyHome extends StatefulWidget {
+  const TenantBodyHome({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: MAIN_COLOR,
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 15.0),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationPage()),
-              );
-            },
-            child: Icon(
-              Icons.notifications,
-              color: Colors.white,
-            ),
-          ),
-        )
-      ],
-    );
+  State<TenantBodyHome> createState() => _TenantBodyHomeState();
+}
+
+class _TenantBodyHomeState extends State<TenantBodyHome> {
+  final memberService = MemberService();
+  Member? member;
+  late RepairRequestProvider repairRequestProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeMember();
+  }
+
+  Future<void> _initializeMember() async {
+    final String memberID = await memberService.findMemberID();
+    final Member _member = await memberService.getMember(memberID);
+    repairRequestProvider =
+        Provider.of<RepairRequestProvider>(context, listen: false);
+    await repairRequestProvider.initializeData(memberID);
+    setState(() {
+      member = _member;
+    });
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
-}
-
-class TenantBodyHome extends StatelessWidget {
-  final VoidCallback onSignOut;
-
-  const TenantBodyHome({super.key, required this.onSignOut});
-
-  @override
   Widget build(BuildContext context) {
+    if (member == null) {
+      return CircularProgressIndicator();
+    }
+
     final tenantBuildingProvider =
-    Provider.of<TenantBuildingProvider>(context, listen: false);
+        Provider.of<TenantBuildingProvider>(context, listen: false);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       tenantBuildingProvider.initializeData().then((_) {
-        //tenantBuildingProvider.filterAvailableBuildings();
       });
     });
 
-
     return Column(
       children: [
-        Flexible(
+        Expanded(
           flex: 2,
           child: Container(
             color: MAIN_COLOR,
-            child: Align(
-              alignment: Alignment.topRight,
-              child: IconButton(
-                icon: Icon(Icons.logout),
-                color: Colors.white,
-                onPressed: onSignOut,
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Row(children: [
+              ClipOval(
+                child: Image.network(
+                  member!.profile,
+                  width: 70,
+                  height: 70,
+                  fit: BoxFit.cover,
+                ),
               ),
-            ),
+              SizedBox(
+                width: 10,
+              ),
+              Text("${member!.memberNickName}님",
+                  style: TextStyle(
+                    fontSize: 40,
+                    color: Colors.white,
+                  ))
+            ]),
           ),
         ),
-        Flexible(
-          flex: 8,
-          child: Stack(
-            children: [
-              Container(
-                color: MAIN_COLOR,
+        Expanded(
+          flex: 10,
+          child: Container(
+            padding: EdgeInsets.fromLTRB(15, 20, 15, 0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10.0),
+                topRight: Radius.circular(10.0),
               ),
-              Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10.0),
-                      topRight: Radius.circular(10.0),
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "진행 중인 수리 요청",
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black,
                     ),
-                  )),
-              Positioned(
-                top: 20,
-                left: 20,
-                right: 20,
-                bottom: 20,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 20.0),
-                  child: Text(
+                    textAlign: TextAlign.start,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  SizedBox(
+                      height: 180,
+                      child: Consumer<RepairRequestProvider>(
+                          builder: (context, repairRequestProvider, child) {
+                        final repairRequests = repairRequestProvider
+                            .repairRequests.reversed
+                            .toList();
+
+                        if (repairRequests == null || repairRequests.isEmpty) {
+                          return Center(
+                              child: Text(
+                            '아직 수리 요청이 없습니다.',
+                            style: TextStyle(
+                              color: GRAY_COLOR,
+                              fontSize: 12.0,
+                            ),
+                          ));
+                        }
+
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: repairRequests.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: 400,
+                              child: RepairRequestCard(
+                                repairRequest: repairRequests[index],
+                              ),
+                            );
+                          },
+                        );
+                      })),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
                     "최근 공지 사항",
                     style: const TextStyle(
                       fontSize: 20.0,
@@ -408,43 +482,45 @@ class TenantBodyHome extends StatelessWidget {
                     ),
                     textAlign: TextAlign.start,
                   ),
-                ),
-              ),
-              Positioned(
-                top: 80,
-                left: 20,
-                right: 20,
-                bottom: 20,
-                child: Consumer<TenantBuildingProvider>(
-                  builder: (context, tenantBuildingProvider, child) {
-                    if (tenantBuildingProvider.filteredBuildings.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          textAlign: TextAlign.center,
-                          '등록된 건물이 없습니다.\n우측 하단의 버튼을 통해 건물을 등록해 주세요.',
-                          style: TextStyle(
-                            color: GRAY_COLOR,
-                            fontSize: 12.0,
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Consumer<TenantBuildingProvider>(
+                    builder: (context, tenantBuildingProvider, child) {
+                      if (tenantBuildingProvider.filteredBuildings.isEmpty) {
+                        return const Center(
+                          child: Text(
+                            textAlign: TextAlign.center,
+                            '등록된 건물이 없습니다.\n건물 탭에서 건물을 등록해 주세요',
+                            style: TextStyle(
+                              color: GRAY_COLOR,
+                              fontSize: 12.0,
+                            ),
                           ),
-                        ),
+                        );
+                      }
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount:
+                            tenantBuildingProvider.filteredBuildings.length,
+                        itemBuilder: (context, index) {
+                          BuildingWithResidents buildingWithResidents =
+                              tenantBuildingProvider.filteredBuildings[index];
+                          return _buildingCard(context, buildingWithResidents);
+                        },
+                        physics: NeverScrollableScrollPhysics(),
                       );
-                    }
-                    return ListView.builder(
-                      itemCount: tenantBuildingProvider.filteredBuildings.length,
-                      itemBuilder: (context, index) {
-                        BuildingWithResidents buildingWithResidents = tenantBuildingProvider.filteredBuildings[index];
-                        return _buildingCard(context, buildingWithResidents);
-                      },
-                    );
-                  },
-                ),
+                    },
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ],
     );
   }
+
   Widget _buildingCard(
       BuildContext context, BuildingWithResidents buildingWithResidents) {
     return GestureDetector(
@@ -501,13 +577,13 @@ class TenantBodyHome extends StatelessWidget {
                             ),
                             TextSpan(
                               text: buildingWithResidents.notice != null &&
-                                  buildingWithResidents.notice!.isNotEmpty
+                                      buildingWithResidents.notice!.isNotEmpty
                                   ? buildingWithResidents.notice
                                   : '등록된 공지가 없습니다',
                               style: TextStyle(
                                 fontSize: 12.0,
                                 color: buildingWithResidents.notice != null &&
-                                    buildingWithResidents.notice!.isNotEmpty
+                                        buildingWithResidents.notice!.isNotEmpty
                                     ? Colors.black
                                     : Colors.grey,
                               ),

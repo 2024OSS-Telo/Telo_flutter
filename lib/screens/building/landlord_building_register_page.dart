@@ -122,6 +122,7 @@ class _BuildingRegisterPage extends State<BuildingRegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
         appBar: _buildAppBar(context),
         body: SingleChildScrollView(
           child: Container(

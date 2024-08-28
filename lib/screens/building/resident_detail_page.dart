@@ -74,7 +74,9 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
 
     return MaterialApp(
         home: Scaffold(
+            backgroundColor: Colors.white,
             appBar: AppBar(
+              backgroundColor: Colors.white,
               title: Text(
                 '${buildingWithResidents.buildingName} ${buildingWithResidents.apartmentNumber}',
                 style: TextStyle(
@@ -364,4 +366,3 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
     );
   }
 }
-

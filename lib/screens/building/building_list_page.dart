@@ -35,7 +35,9 @@ class LandlordBuildingListPage extends StatelessWidget {
     });
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text("건물 목록"),
         automaticallyImplyLeading: false,
         bottom: PreferredSize(
@@ -265,7 +267,9 @@ class TenantBuildingListPage extends StatelessWidget {
     });
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: Text("건물 목록"),
         automaticallyImplyLeading: false,
         bottom: PreferredSize(
