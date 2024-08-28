@@ -39,6 +39,13 @@ class DateNumberSection extends StatelessWidget {
             _DateNumberFormatter(),
           ],
           onSaved: (value) => onSaved?.call(_formatNumber(value ?? '')),
+          validator: (value) {
+            if (value == null || value.length != 10) {
+              return '만료일 형식이 틀렸습니다';
+            }
+            return null;
+          },
+
         ),
         SizedBox(height: 10),
       ],

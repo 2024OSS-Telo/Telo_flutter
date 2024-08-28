@@ -23,9 +23,6 @@ class _BuildingRegisterPage extends State<BuildingRegisterPage> {
   ImageService imageService = ImageService();
   late String memberID;
 
-  bool _isLoading = false;
-
-
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
   final Dio _dio = Dio();
@@ -74,10 +71,8 @@ class _BuildingRegisterPage extends State<BuildingRegisterPage> {
   }
 
   Future<bool> _submitRequest() async {
-    if (_isLoading) return false;
 
     setState(() {
-      _isLoading = true;
     });
 
     if (_pickedImages.isEmpty) {
@@ -245,12 +240,12 @@ class _BuildingRegisterPage extends State<BuildingRegisterPage> {
       child: TextButton(
         style: TextButton.styleFrom(
           fixedSize: Size(350, 20),
-            backgroundColor: _isLoading ? GRAY_COLOR : MAIN_COLOR,
+            backgroundColor: MAIN_COLOR,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(7),
           ),
         ),
-        onPressed: _isLoading ? null : () async {
+        onPressed: () async {
           if (await _submitRequest()) {
             Fluttertoast.showToast(msg: "등록되었습니다.");
             Navigator.pop(context, true);

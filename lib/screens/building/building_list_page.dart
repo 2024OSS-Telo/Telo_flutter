@@ -64,11 +64,11 @@ class LandlordBuildingListPage extends StatelessWidget {
           ),
         ),
       ),
-      body: Consumer<TenantBuildingProvider>(
-        builder: (context, tenantBuildingProvider, child) {
-          if (tenantBuildingProvider.isLoading) {
-            return Center(child: CircularProgressIndicator());
-          } else if (tenantBuildingProvider.buildings.isEmpty) {
+      body: Builder(
+        builder: (context) {
+          final buildingProvider = Provider.of<BuildingProvider>(context);
+          if (buildingProvider.buildings.isEmpty &&
+              buildingProvider.filteredBuildings.isEmpty) {
             return Center(
               child: Text(
                 textAlign: TextAlign.center,
@@ -79,6 +79,8 @@ class LandlordBuildingListPage extends StatelessWidget {
                 ),
               ),
             );
+          } else if (buildingProvider.filteredBuildings.isEmpty) {
+            return Center(child: CircularProgressIndicator());
           } else {
             return Column(
               children: [
@@ -328,7 +330,8 @@ class TenantBuildingListPage extends StatelessWidget {
                     padding: EdgeInsets.all(10.0),
                     itemCount: buildingProvider.filteredBuildings.length,
                     itemBuilder: (context, index) {
-                      BuildingWithResidents buildingWithResidents = buildingProvider.filteredBuildings[index];
+                      BuildingWithResidents buildingWithResidents =
+                          buildingProvider.filteredBuildings[index];
                       return _buildingCard(context, buildingWithResidents);
                     },
                   ),
@@ -345,7 +348,8 @@ class TenantBuildingListPage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => AddressComparePage()),
           );
           if (result == true) {
-            tenantBuildingProvider.fetchBuildings(tenantBuildingProvider.memberID);
+            tenantBuildingProvider
+                .fetchBuildings(tenantBuildingProvider.memberID);
           }
         },
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
@@ -455,15 +459,16 @@ class TenantBuildingListPage extends StatelessWidget {
                               ),
                             ),
                             TextSpan(
-                              text:
-                                  buildingWithResidents.notice ?? '공지를 등록해보세요',
+                              text: buildingWithResidents.notice != null &&
+                                  buildingWithResidents.notice!.isNotEmpty
+                                  ? buildingWithResidents.notice
+                                  : '등록된 공지가 없습니다',
                               style: TextStyle(
                                 fontSize: 12.0,
-                                color: (buildingWithResidents.notice ??
-                                            '공지를 등록해보세요') ==
-                                        '공지를 등록해보세요'
-                                    ? Colors.grey
-                                    : Colors.black,
+                                color: buildingWithResidents.notice != null &&
+                                    buildingWithResidents.notice!.isNotEmpty
+                                    ? Colors.black
+                                    : Colors.grey,
                               ),
                             ),
                           ],

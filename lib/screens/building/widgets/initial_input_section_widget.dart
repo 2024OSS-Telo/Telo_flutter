@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../const/colors.dart';
 
-class InitialInputSectionWidget extends StatelessWidget {
+class InitialInputSectionWidget extends StatefulWidget  {
   final String label;
   final String hintText;
   final int maxLength;
@@ -26,24 +26,40 @@ class InitialInputSectionWidget extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    TextEditingController controller = TextEditingController(text: initialValue);
+  _InitialInputSectionWidgetState createState() => _InitialInputSectionWidgetState();
+}
 
+class _InitialInputSectionWidgetState extends State<InitialInputSectionWidget> {
+  late TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: TextStyle(fontSize: 15)),
+        Text(widget.label, style: TextStyle(fontSize: 15)),
         SizedBox(height: 10),
         TextFormField(
-          controller: TextEditingController(text: initialValue),
-          readOnly: !isEditable,
+          controller: controller,
+          readOnly: !widget.isEditable,
           keyboardType: TextInputType.text,
-          maxLength: maxLength,
-          validator: validator,
+          maxLength: widget.maxLength,
           decoration: InputDecoration(
-            hintText: hintText,
+            hintText: widget.hintText,
             hintStyle: TextStyle(color: LIGHT_GRAY_COLOR),
-            counterText: counterText,
+            counterText: widget.counterText,
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: LIGHT_GRAY_COLOR,
@@ -57,7 +73,7 @@ class InitialInputSectionWidget extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
             filled: true,
-            fillColor: isEditable ? Colors.white : Colors.grey[300],
+            fillColor: widget.isEditable ? Colors.white : LIGHT_GRAY_COLOR,
             border: OutlineInputBorder(
               borderSide: BorderSide(
                 color: LIGHT_GRAY_COLOR,
@@ -68,14 +84,14 @@ class InitialInputSectionWidget extends StatelessWidget {
           style: TextStyle(
             color: Colors.black,
           ),
-          onSaved: onSaved,
+          onSaved: widget.onSaved,
         )
       ],
     );
   }
 }
 
-class InitialPhoneNumberSection extends StatelessWidget {
+class InitialPhoneNumberSection extends StatefulWidget {
   final String? Function(String?)? validator;
   final String initialValue;
   final bool isEditable;
@@ -90,9 +106,26 @@ class InitialPhoneNumberSection extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    TextEditingController controller = TextEditingController(text: initialValue);
+  _InitialPhoneNumberSectionState createState() => _InitialPhoneNumberSectionState();
+}
 
+class _InitialPhoneNumberSectionState  extends State<InitialPhoneNumberSection> {
+  late TextEditingController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.initialValue);
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -116,7 +149,7 @@ class InitialPhoneNumberSection extends StatelessWidget {
               borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
             filled: true,
-            fillColor: isEditable ? Colors.white : Colors.grey[300], // 배경색 설정
+            fillColor: widget.isEditable ? Colors.white : LIGHT_GRAY_COLOR,
             border: OutlineInputBorder(
               borderSide: BorderSide(color: LIGHT_GRAY_COLOR),
               borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -128,10 +161,16 @@ class InitialPhoneNumberSection extends StatelessWidget {
             FilteringTextInputFormatter.digitsOnly,
             _InitialPhoneNumberFormatter(),
           ],
-          readOnly: !isEditable, // 입력 불가능하지만 값 표시
-          onSaved: isEditable
-              ? (value) => onSaved?.call(_formatNumber(value ?? ''))
+          readOnly: !widget.isEditable,
+          onSaved: widget.isEditable
+              ? (value) => widget.onSaved?.call(_formatNumber(value ?? ''))
               : null,
+          validator: (value) {
+            if (value == null || value.length != 13) {
+              return '전화번호 형식이 틀렸습니다';
+            }
+            return null;
+          },
         ),
       ],
     );
