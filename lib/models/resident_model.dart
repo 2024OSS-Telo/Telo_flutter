@@ -7,6 +7,7 @@ class Resident {
   final String phoneNumber;
   final String apartmentNumber;
   final String rentType;
+  final List<String> contractImageURL;
 
   final String monthlyRentAmount;
   final String monthlyRentPaymentDate;
@@ -27,6 +28,7 @@ class Resident {
     required this.phoneNumber,
     required this.apartmentNumber,
     required this.rentType,
+    required this.contractImageURL,
 
     required this.monthlyRentAmount,
     required this.monthlyRentPaymentDate,
@@ -49,6 +51,7 @@ class Resident {
       phoneNumber: json['phoneNumber'] ?? '',
       apartmentNumber: json['apartmentNumber'] ?? '',
       rentType: json['rentType'] ?? '',
+      contractImageURL: List<String>.from(json['contractImageURL']) ?? [],
 
       monthlyRentAmount: json['monthlyRentAmount'] ?? '',
       monthlyRentPaymentDate: json['monthlyRentPaymentDate'] ?? '',

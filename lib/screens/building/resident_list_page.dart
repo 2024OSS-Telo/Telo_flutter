@@ -42,8 +42,8 @@ class ResidentListPageState extends State<ResidentListPage> {
   Future<List<Resident>> _fetchResidents(
       String buildingID, String buildingName) async {
     try {
-      final response =
-          await _dio.get('$backendURL/api/residents/landlord/resident-list/$buildingID');
+      final response = await _dio
+          .get('$backendURL/api/residents/landlord/resident-list/$buildingID');
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
 
@@ -69,6 +69,58 @@ class ResidentListPageState extends State<ResidentListPage> {
             resident.apartmentNumber.toLowerCase().contains(query);
       }).toList();
     });
+  }
+
+  void _showImagePopup(BuildContext context, int initialIndex, List<String> imageURLs) {
+    final PageController pageController = PageController(initialPage: initialIndex);
+    int currentPage = 0;
+
+    print('이미지 url 길이: ${imageURLs.length}');
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: DARK_GRAY_COLOR.withOpacity(0.5),
+          insetPadding: EdgeInsets.symmetric(vertical: 50.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+          ),
+          child: Stack(
+            children: [
+              PageView.builder(
+                onPageChanged: (value) {
+                  setState(() {
+                    currentPage = value;
+                  });
+                },
+                itemCount: imageURLs.length,
+                itemBuilder: (context, index) {
+                  return Image.network(
+                    imageURLs[index],
+                    fit: BoxFit.contain,
+                  );
+                },
+              ),
+              Positioned(
+                top: 20.0,
+                right: 10.0,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Icon(
+                    Icons.close_rounded,
+                    color: DARK_GRAY_COLOR,
+                    size: 30.0,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -155,6 +207,7 @@ class ResidentListPageState extends State<ResidentListPage> {
                       itemCount: _filteredResidents.length,
                       itemBuilder: (context, index) {
                         Resident resident = _filteredResidents[index];
+
                         return _residentCard(resident);
                       },
                     ),
@@ -180,12 +233,19 @@ class ResidentListPageState extends State<ResidentListPage> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                child: Image.asset(
-                  'assets/image/buildingIMGtest.png',
-                  width: 120.0,
-                  height: 130.0,
-                  fit: BoxFit.cover,
+              GestureDetector(
+                onTap: () {
+                  print('이미지 url 길이: ${resident.imageURL.length}');
+                  _showImagePopup(context, 0, resident.contractImageURL);
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.network(
+                    resident.imageURL.first,
+                    width: 100.0,
+                    height: 120.0,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
               SizedBox(width: 15.0),
@@ -243,9 +303,8 @@ class ResidentListPageState extends State<ResidentListPage> {
             borderRadius: BorderRadius.circular(18),
           ),
           padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-          child: Text(resident.rentType, style: TextStyle(
-              fontSize: 13,
-              color: Colors.white)),
+          child: Text(resident.rentType,
+              style: TextStyle(fontSize: 13, color: Colors.white)),
         ),
       )
     ]);

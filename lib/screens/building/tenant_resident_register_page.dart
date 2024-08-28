@@ -300,6 +300,8 @@ class _ResidentRegisterPage extends State<ResidentRegisterPage> {
   Future<void> _initializeData() async {
     try {
       memberID = await memberService.findMemberID();
+      final tenantName = await _fetchTenantDetails();
+
       await _fetchTenantDetails();
     } catch (error) {
       print('멤버아이디 에러: $error');
