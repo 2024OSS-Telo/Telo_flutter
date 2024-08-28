@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:stomp_dart_client/stomp_dart_client.dart';
 import 'package:telo/services/chat_service.dart';
+import 'package:telo/services/member_service.dart';
 
 import '../../const/backend_url.dart';
 import '../../const/colors.dart';
@@ -23,8 +24,9 @@ class ChatPage extends StatefulWidget {
 
 class _ChatPageState extends State<ChatPage> {
   final chatService = ChatService();
-  //String _memberType = "tenant";
-  String _memberType = "landlord";
+  final memberService = MemberService();
+
+  late String _memberType;
 
   final _textController = TextEditingController();
   late StompClient _stompClient;
@@ -65,6 +67,8 @@ class _ChatPageState extends State<ChatPage> {
 
   Future<void> _initializeMessages() async {
     try {
+      final _member = await memberService.getMember(widget.memberID);
+      _memberType = _member.memberType;
       final messages = await chatService.getChatMessages(widget.roomID);
       setState(() {
         _messages = messages.reversed.toList();

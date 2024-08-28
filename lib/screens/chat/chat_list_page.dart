@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:telo/services/chat_service.dart';
+import 'package:telo/services/member_service.dart';
 import 'package:telo/widgets/chat_widget.dart';
 
 import '../../const/colors.dart';
@@ -10,16 +11,16 @@ import 'chat_page.dart';
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
 
-  //TODO: 아이디 바꾸기
-  final String memberID = 'TestID';
-
   @override
   State<ChatListPage> createState() => _ChatListPageState();
 }
 
 class _ChatListPageState extends State<ChatListPage> {
   final ChatService _chatService = ChatService();
+  final MemberService _memberService = MemberService();
   late List<dynamic> _chatRooms = [];
+
+  late String memberID;
 
   @override
   void initState() {
@@ -29,7 +30,8 @@ class _ChatListPageState extends State<ChatListPage> {
 
   Future<void> _initializeChatRooms() async {
     try {
-      final chatRooms = await _chatService.getChatRoomList(widget.memberID);
+      memberID = await _memberService.findMemberID();
+      final chatRooms = await _chatService.getChatRoomList(memberID);
       setState(() {
         _chatRooms = chatRooms.reversed.toList();
       });
@@ -67,7 +69,7 @@ class _ChatListPageState extends State<ChatListPage> {
                           return Column(
                             children: <Widget>[
                               ChatRoomCard(
-                                memberID: widget.memberID,
+                                memberID: memberID,
                                 chatRoom: chatRoom,
                               )
                             ],

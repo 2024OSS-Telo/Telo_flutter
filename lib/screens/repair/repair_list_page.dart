@@ -1,38 +1,46 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:telo/const/colors.dart';
 import 'package:telo/screens/repair/repair_request_page.dart';
 import 'package:telo/services/repair_request_service.dart';
 
 import '../../models/repair_request_model.dart';
+import '../../provider/repair_request_provider.dart';
+import '../../services/member_service.dart';
 import '../../widgets/repair_request_widget.dart';
 
 class RepairListPage extends StatefulWidget {
   const RepairListPage({super.key});
-
-  //TODO: 멤버 아이디 고치기
-  final String memberID = 'TestID';
 
   @override
   State<RepairListPage> createState() => _RepairListPageState();
 }
 
 class _RepairListPageState extends State<RepairListPage> {
-  final repairRequestService = RepairRequestService();
-  late List<RepairRequest> _repairRequests = [];
+  final memberService = MemberService();
+  late String memberID;
+  late String memberType = "";
+  late RepairRequestProvider repairRequestProvider;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    _initializeRequests();
+    _initializeMember();
   }
 
-  Future<void> _initializeRequests() async {
+  Future<void> _initializeMember() async {
     try {
-      final repairRequests = await repairRequestService.getRepairRequestList(widget.memberID);
+      memberID = await memberService.findMemberID();
+      final _member = await memberService.getMember(memberID);
+
+      repairRequestProvider =
+          Provider.of<RepairRequestProvider>(context, listen: false);
+
       setState(() {
-        _repairRequests = repairRequests.reversed.toList();
+        memberType = _member.memberType;
       });
+      await repairRequestProvider.initializeData(memberID);
     } catch (e) {
       print('수리 요청 목록 로딩 오류: $e');
     }
@@ -43,43 +51,72 @@ class _RepairListPageState extends State<RepairListPage> {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-      appBar: AppBar(
-        title: Text("수리 요청 목록"),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                  itemCount: _repairRequests.length,
-                  itemBuilder: (context, index) {
-                    final repairRequest = _repairRequests[index];
-                    return Column(
-                      children: <Widget>[
-                        RepairRequestCard(
-                          key: ValueKey(repairRequest.requestID),
-                          repairRequest: repairRequest,
-                        )
-                      ],
-                    );
-                  })),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => RepairRequestPage(onUpdate: _initializeRequests,)),
-          );
-        },
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        backgroundColor: MAIN_COLOR,
-        child: const Icon(
-          color: Colors.white,
-          Icons.add,
-          size: 30,
-        ),
-      ),
-    ));
+          appBar: AppBar(
+            title: Text("수리 요청 목록"),
+          ),
+          body: Consumer<RepairRequestProvider>(
+              builder: (context, repairRequestProvider, child) {
+            final repairRequests = repairRequestProvider.repairRequests.reversed.toList();
+
+            if (repairRequests.isEmpty) {
+              return Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "아직 수리 요청이 없습니다.",
+                    style: TextStyle(
+                      color: GRAY_COLOR,
+                      fontSize: 12.0,
+                    ),
+                  ));
+            }
+
+            return Column(
+              children: [
+                Expanded(
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: repairRequests.length,
+                        itemBuilder: (context, index) {
+                          final repairRequest = repairRequests[index];
+                          return Column(
+                            children: <Widget>[
+                              RepairRequestCard(
+                                key: ValueKey(repairRequest.requestID),
+                                repairRequest: repairRequest,
+                              )
+                            ],
+                          );
+                        })),
+              ],
+            );
+          }),
+          floatingActionButton: memberType == 'tenant'
+              ? FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RepairRequestPage(
+                            onUpdate: () async {
+                              final repairRequestProvider =
+                                  Provider.of<RepairRequestProvider>(context,
+                                      listen: false);
+                              await repairRequestProvider
+                                  .initializeData(memberID);
+                            },
+                          ),
+                        ));
+                  },
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30)),
+                  backgroundColor: MAIN_COLOR,
+                  child: const Icon(
+                    color: Colors.white,
+                    Icons.add,
+                    size: 30,
+                  ),
+                )
+              : null,
+        ));
   }
 }
