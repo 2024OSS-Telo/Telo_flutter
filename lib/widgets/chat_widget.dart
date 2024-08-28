@@ -186,11 +186,11 @@ class _RequestMessageBubbleState extends State<RequestMessageBubble> {
                             await _requestService.updateRepairState(
                                 widget.requestMessage.repairRequest.requestID,
                                 RepairState.UNDER_REPAIR);
+                            widget.requestMessage.repairRequest.repairState = RepairState.UNDER_REPAIR;
                             await _chatService.createNoticeMessage(
                                 widget.roomID,
                                 widget.requestMessage.repairRequest.requestID,
                                 'approval');
-                            widget.requestMessage.repairRequest.repairState = RepairState.UNDER_REPAIR;
                           },
                           child: Text("승인",
                               style:
@@ -397,12 +397,12 @@ class NoticeMessageBubble extends StatelessWidget {
                                             noticeMessage
                                                 .repairRequest.requestID,
                                             RepairState.COMPLETE);
+                                        noticeMessage.repairRequest.repairState = RepairState.COMPLETE;
                                         await _chatService.createNoticeMessage(
                                             roomID,
                                             noticeMessage
                                                 .repairRequest.requestID,
                                             'complete');
-                                        noticeMessage.repairRequest.repairState = RepairState.COMPLETE;
                                       },
                                       child: Text("송금 완료",
                                           style: TextStyle(

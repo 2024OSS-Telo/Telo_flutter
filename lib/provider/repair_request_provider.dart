@@ -16,16 +16,16 @@ class RepairRequestProvider with ChangeNotifier {
     try {
       _repairRequests.clear();
       _repairRequests = await repairRequestService.getRepairRequestList(memberID);
+      getFilteredRepairRequests();
       notifyListeners();
     } catch (e) {
       print('수리 요청 목록 로딩 실패: $e');
     }
   }
 
-  List<RepairRequest> getFilteredRepairRequests() {
-    return _repairRequests.where((repairRequest) {
-      return repairRequest.repairState == RepairState.NONE ||
-          repairRequest.repairState == RepairState.UNDER_REPAIR ||
+  void getFilteredRepairRequests() {
+    _filteredRepairRequests = _repairRequests.where((repairRequest) {
+      return repairRequest.repairState == RepairState.UNDER_REPAIR ||
           repairRequest.repairState == RepairState.CLAIM;
     }).toList();
     notifyListeners();

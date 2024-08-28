@@ -51,7 +51,9 @@ class Resident {
       phoneNumber: json['phoneNumber'] ?? '',
       apartmentNumber: json['apartmentNumber'] ?? '',
       rentType: json['rentType'] ?? '',
-      contractImageURL: List<String>.from(json['contractImageURL']) ?? [],
+      contractImageURL: json['contractImageURL'] != null
+          ? List<String>.from(json['contractImageURL'])
+          : [],
 
       monthlyRentAmount: json['monthlyRentAmount'] ?? '',
       monthlyRentPaymentDate: json['monthlyRentPaymentDate'] ?? '',
@@ -64,7 +66,9 @@ class Resident {
       buildingID: json['building']['buildingID'] ?? '',
       buildingName: json['building']['buildingName'] ?? '',
       notice: json['building']['notice'] ?? '',
-      imageURL: List<String>.from(json['building']['imageURL']) ?? [],
+      imageURL: json['building']?['imageURL'] != null
+          ? List<String>.from(json['building']['imageURL'])
+          : [],
     );
   }
 }

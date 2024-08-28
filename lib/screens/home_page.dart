@@ -163,7 +163,7 @@ class _LandlordBodyHomeState extends State<LandlordBodyHome> {
                       child: Consumer<RepairRequestProvider>(
                           builder: (context, repairRequestProvider, child) {
                         final repairRequests = repairRequestProvider
-                            .repairRequests.reversed
+                            .filteredRepairRequests.reversed
                             .toList();
 
                         if (repairRequests == null || repairRequests.isEmpty) {
@@ -443,7 +443,7 @@ class _TenantBodyHomeState extends State<TenantBodyHome> {
                       child: Consumer<RepairRequestProvider>(
                           builder: (context, repairRequestProvider, child) {
                         final repairRequests = repairRequestProvider
-                            .repairRequests.reversed
+                            .filteredRepairRequests.reversed
                             .toList();
 
                         if (repairRequests == null || repairRequests.isEmpty) {
