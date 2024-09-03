@@ -515,14 +515,20 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
             margin: EdgeInsets.symmetric(horizontal: 15, vertical: 6),
             child: Row(
               children: [
-                ClipOval(
-                  child: Image.network(
-                    _other!.profile,
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                  ),
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: LIGHT_GRAY_COLOR,
+                  backgroundImage: _other!.profile != null &&
+                      _other!.profile!.isNotEmpty
+                      ? NetworkImage(_other!.profile!)
+                      : null,
+                  child: _other!.profile == null ||
+                      _other!.profile!.isEmpty
+                      ? Icon(Icons.person,
+                      size: 50, color: Colors.black)
+                      : null,
                 ),
+
                 SizedBox(
                   width: 15,
                 ),

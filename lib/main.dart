@@ -138,9 +138,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => RepairRequestProvider()),
       ],
       child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-        //home: MyApp(),
-        home: MainPage(onSignOut: signOut,),
+        //home: MainPage(onSignOut: signOut),
+        home: MyApp(),
       ),
     ),
   );

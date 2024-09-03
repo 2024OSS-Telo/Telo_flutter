@@ -142,104 +142,115 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                             SizedBox(height: 20),
                             Row(
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: 10),
-                                    Text(
-                                      "주소",
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      "계약 분류",
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    SizedBox(height: 10),
-                                    if (buildingWithResidents.rentType == '월세') ...[
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 10),
                                       Text(
-                                        '월세',
+                                        "주소",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      SizedBox(height: 40),
+                                      Text(
+                                        "계약 분류",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      if (buildingWithResidents.rentType == '월세') ...[
+                                        SizedBox(height: 10),
+                                        Text(
+                                          '월세',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text(
+                                          '월세 납부일',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600),
+                                        ),
+                                      ],
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "보증금",
                                         style: TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w600),
                                       ),
                                       SizedBox(height: 10),
                                       Text(
-                                        '월세 납부일',
+                                        "계약 기간",
                                         style: TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w600),
                                       ),
                                     ],
-                                    Text(
-                                      "보증금",
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      "계약 기간",
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                                 SizedBox(
                                   width: 30,
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: 10),
-                                    Text(
-                                      buildingWithResidents.buildingAddress,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      buildingWithResidents.rentType,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                      ),
-                                    ),
-
-                                    if (buildingWithResidents.rentType == '월세') ...[
-                                      Text(
-                                        buildingWithResidents.monthlyRentAmount,
-                                        style: TextStyle(
-                                            fontSize: 15),
+                                Expanded(
+                                  flex: 4,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 10),
+                                      SizedBox(
+                                        child: Text(
+                                          buildingWithResidents.buildingAddress,
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                          ),
+                                        ),
                                       ),
                                       SizedBox(height: 10),
                                       Text(
-                                        buildingWithResidents.monthlyRentPaymentDate,
+                                        buildingWithResidents.rentType,
                                         style: TextStyle(
-                                            fontSize: 15),
+                                          fontSize: 15,
+                                        ),
+                                      ),
+
+                                      if (buildingWithResidents.rentType == '월세') ...[
+                                        SizedBox(height: 10),
+                                        Text(
+                                          buildingWithResidents.monthlyRentAmount,
+                                          style: TextStyle(
+                                              fontSize: 15),
+                                        ),
+
+                                        SizedBox(height: 10),
+                                        Text(
+                                          buildingWithResidents.monthlyRentPaymentDate,
+                                          style: TextStyle(
+                                              fontSize: 15),
+                                        ),
+
+                                      ],
+                                      SizedBox(height: 10),
+                                      Text(
+                                        buildingWithResidents.deposit,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        buildingWithResidents.contractExpirationDate,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                        ),
                                       ),
                                     ],
-
-                                    SizedBox(height: 10),
-                                    Text(
-                                      buildingWithResidents.deposit,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      buildingWithResidents.contractExpirationDate,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -254,47 +265,53 @@ class _ResidentDetailPageState extends State<ResidentDetailPage> {
                             SizedBox(height: 20),
                             Row(
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: 10),
-                                    Text(
-                                      "임대인 명",
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      "연락처",
-                                      style: TextStyle(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600),
-                                    ),
-                                    SizedBox(height: 10),
-                                  ],
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "임대인 명",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        "연락처",
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600),
+                                      ),
+                                      SizedBox(height: 10),
+                                    ],
+                                  ),
                                 ),
                                 SizedBox(
-                                  width: 40,
+                                  width: 10,
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: 10),
-                                    Text(
-                                      landlordName,
-                                      style: TextStyle(
-                                        fontSize: 15,
+                                Expanded(
+                                  flex: 5,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 10),
+                                      Text(
+                                        landlordName,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      landlordPhoneNumber,
-                                      style: TextStyle(
-                                        fontSize: 15,
+                                      SizedBox(height: 10),
+                                      Text(
+                                        landlordPhoneNumber,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
