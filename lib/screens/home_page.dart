@@ -115,8 +115,8 @@ class _LandlordBodyHomeState extends State<LandlordBodyHome> {
               ClipOval(
                 child: Image.network(
                   member!.profile,
-                  width: 70,
-                  height: 70,
+                  width: 60,
+                  height: 60,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -395,8 +395,8 @@ class _TenantBodyHomeState extends State<TenantBodyHome> {
               ClipOval(
                 child: Image.network(
                   member!.profile,
-                  width: 70,
-                  height: 70,
+                  width: 60,
+                  height: 60,
                   fit: BoxFit.cover,
                 ),
               ),

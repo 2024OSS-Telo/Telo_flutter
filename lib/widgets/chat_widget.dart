@@ -499,6 +499,7 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
               builder: (context) => ChatPage(
                 roomID: widget.chatRoom.roomID,
                 memberID: widget.memberID,
+                otherName: _other!.memberNickName
               ),
             ),
           );
@@ -517,8 +518,8 @@ class _ChatRoomCardState extends State<ChatRoomCard> {
                 ClipOval(
                   child: Image.network(
                     _other!.profile,
-                    width: 60,
-                    height: 60,
+                    width: 50,
+                    height: 50,
                     fit: BoxFit.cover,
                   ),
                 ),

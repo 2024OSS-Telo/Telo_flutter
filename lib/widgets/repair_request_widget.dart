@@ -68,7 +68,7 @@ class _RepairRequestCardState extends State<RepairRequestCard> {
                         height: 10,
                       ),
                       Text(widget.repairRequest.requestContent,
-                          maxLines: 3,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(color: GRAY_COLOR),
                           softWrap: true),

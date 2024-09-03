@@ -10,13 +10,15 @@ import 'package:telo/services/member_service.dart';
 import '../../const/backend_url.dart';
 import '../../const/colors.dart';
 import '../../models/chat_model.dart';
+import '../../models/member_model.dart';
 import '../../widgets/chat_widget.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key, required this.memberID, required this.roomID});
+  const ChatPage({super.key, required this.memberID, required this.roomID, required this.otherName});
 
   final String memberID;
   final String roomID;
+  final String otherName;
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -82,7 +84,6 @@ class _ChatPageState extends State<ChatPage> {
     final textMessage = TextMessage(
       roomID: widget.roomID,
       senderID: widget.memberID,
-      // senderID: '2',
       sendDate: DateTime.now(),
       message: _messageValue,
     );
@@ -112,7 +113,7 @@ class _ChatPageState extends State<ChatPage> {
         backgroundColor: Colors.white,
         appBar: AppBar(
             backgroundColor: Colors.white,
-            title: Text('상대 이름'),
+            title: Text(widget.otherName),
             leading: IconButton(
               icon: Icon(Icons.arrow_back_ios),
               onPressed: () {

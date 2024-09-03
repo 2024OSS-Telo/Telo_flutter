@@ -14,6 +14,7 @@ class RepairDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
+          backgroundColor: Colors.white,
             appBar: AppBar(
                 backgroundColor: Colors.white,
                 title: Text("수리 요청 내용"),
